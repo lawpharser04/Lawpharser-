@@ -1,0 +1,2502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LawPhaser — Law school, but easier.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --ink:#16152B;
+  --ink-soft:#3A3854;
+  --paper:#FAF6EC;
+  --paper-raised:#FFFFFF;
+  --paper-line:#E5DCC3;
+  --gold:#C79A2E;
+  --gold-deep:#9C7A1F;
+  --emerald:#1F6E52;
+  --emerald-deep:#164F3B;
+  --berry:#B23A48;
+  --sky:#2C5C8A;
+  --shadow: 0 1px 0 rgba(22,21,43,0.04);
+  --radius: 14px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Manrope',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+h1,h2,h3,h4,.display{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  color:var(--ink);
+  letter-spacing:-0.01em;
+  margin:0;
+}
+p{line-height:1.6;color:var(--ink-soft);margin:0 0 1em 0;max-width:65ch;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+::selection{background:var(--gold);color:#fff;}
+:focus-visible{outline:2px solid var(--emerald);outline-offset:2px;}
+
+/* ---------- shell ---------- */
+#app{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:var(--ink);
+  color:#EFEAD9;
+  border-bottom:3px solid var(--gold);
+}
+.topbar-inner{
+  max-width:1180px;margin:0 auto;padding:12px 24px;
+  display:flex;align-items:center;gap:24px;
+}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:#fff;cursor:pointer;flex-shrink:0;}
+.brand .mark{
+  width:30px;height:30px;border-radius:8px;background:linear-gradient(150deg,var(--gold),#8A6A1B);
+  display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:15px;font-weight:800;
+}
+.nav-desktop{display:flex;gap:2px;flex:1;flex-wrap:wrap;}
+.nav-desktop button{
+  background:none;border:none;color:#CFC9B0;font-size:0.86rem;font-weight:600;padding:8px 12px;border-radius:8px;
+}
+.nav-desktop button:hover, .nav-desktop button.active{background:rgba(255,255,255,0.08);color:#fff;}
+.top-actions{display:flex;gap:10px;align-items:center;}
+.searchbox{
+  display:flex;align-items:center;background:rgba(255,255,255,0.08);border-radius:20px;padding:6px 12px;gap:6px;
+}
+.searchbox input{background:none;border:none;color:#fff;font-size:0.82rem;width:130px;font-family:inherit;}
+.searchbox input::placeholder{color:#9B9680;}
+.searchbox input:focus{outline:none;}
+.pill-btn{
+  background:var(--gold);color:var(--ink);border:none;padding:8px 16px;border-radius:20px;font-weight:700;font-size:0.82rem;
+}
+.pill-btn.ghost{background:transparent;border:1.5px solid rgba(255,255,255,0.35);color:#fff;}
+.avatar-chip{
+  width:34px;height:34px;border-radius:50%;background:var(--emerald);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:0.85rem;flex-shrink:0;
+}
+.mobile-nav{display:none;position:sticky;bottom:0;z-index:50;background:var(--ink);border-top:1px solid rgba(255,255,255,0.12);padding:6px 4px 10px;}
+.mobile-nav-inner{display:flex;justify-content:space-around;}
+.mobile-nav button{background:none;border:none;color:#CFC9B0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:0.62rem;font-weight:700;padding:6px 4px;border-radius:10px;}
+.mobile-nav button.active{color:var(--gold);}
+.mobile-nav .icon{font-size:1.15rem;}
+
+main{flex:1;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+.section{padding:56px 0;}
+.section.tight{padding:32px 0;}
+
+/* ---------- landing ---------- */
+.hero{
+  background:
+    radial-gradient(ellipse 900px 500px at 85% -10%, rgba(199,154,46,0.18), transparent 60%),
+    radial-gradient(ellipse 700px 500px at -10% 10%, rgba(31,110,82,0.16), transparent 60%),
+    var(--ink);
+  color:#F3EFDF;position:relative;overflow:hidden;
+}
+.hero-inner{max-width:1180px;margin:0 auto;padding:88px 24px 70px;position:relative;z-index:2;}
+.hero-eyebrow{font-size:0.78rem;letter-spacing:0.02em;color:var(--gold);font-weight:700;margin-bottom:18px;font-family:'Fraunces',serif;font-style:italic;}
+.hero h1{font-size:clamp(2.6rem,6vw,4.4rem);line-height:1.02;color:#fff;max-width:14ch;}
+.hero .tagline{font-size:clamp(1.05rem,2vw,1.35rem);color:#D9D3BC;margin-top:20px;max-width:38ch;font-family:'Fraunces',serif;font-style:italic;font-weight:500;}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px;}
+.btn{
+  border:none;padding:13px 22px;border-radius:10px;font-weight:700;font-size:0.92rem;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary{background:var(--gold);color:var(--ink);}
+.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,0.32);color:#fff;}
+.btn-emerald{background:var(--emerald);color:#fff;}
+.btn-ink{background:var(--ink);color:#fff;}
+.hero-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(255,255,255,0.14);margin-top:64px;border-radius:16px;overflow:hidden;position:relative;z-index:2;}
+.hero-strip>div{background:rgba(255,255,255,0.04);padding:20px 16px;}
+.hero-strip .num{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--gold);font-weight:700;}
+.hero-strip .lbl{font-size:0.76rem;color:#C7C2AC;margin-top:4px;}
+
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap;}
+.section-head h2{font-size:1.9rem;}
+.section-head .kicker{font-family:'Fraunces',serif;font-style:italic;color:var(--emerald-deep);font-size:0.95rem;margin-bottom:6px;}
+.section-sub{color:var(--ink-soft);max-width:60ch;}
+
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.feature-card{
+  background:var(--paper-raised);border:1px solid var(--paper-line);border-radius:var(--radius);padding:24px;
+  display:flex;flex-direction:column;gap:10px;transition:transform .15s ease, box-shadow .15s ease;
+}
+.feature-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(22,21,43,0.09);}
+.feature-card .ic{font-size:1.6rem;}
+.feature-card h3{font-size:1.08rem;}
+.feature-card p{font-size:0.9rem;margin:0;}
+.feature-card .go{margin-top:auto;font-size:0.82rem;font-weight:700;color:var(--emerald-deep);}
+
+.landing-band{background:var(--emerald);color:#fff;padding:44px 0;}
+.landing-band .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.landing-band h2{color:#fff;font-size:1.7rem;max-width:22ch;}
+.landing-band p{color:#D9EDE3;}
+
+footer{background:var(--ink);color:#B7B29A;padding:36px 0;font-size:0.8rem;}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+
+/* ---------- cards / generic ---------- */
+.card{background:var(--paper-raised);border:1px solid var(--paper-line);border-radius:var(--radius);}
+.badge{display:inline-block;font-size:0.68rem;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:0.02em;}
+.badge-gold{background:#F3E4B8;color:var(--gold-deep);}
+.badge-emerald{background:#D8ECE2;color:var(--emerald-deep);}
+.badge-berry{background:#F3D9DB;color:var(--berry);}
+.badge-sky{background:#DCE7F2;color:var(--sky);}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+
+.folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+.folder{
+  background:var(--paper-raised);border:1px solid var(--paper-line);border-radius:12px;padding:20px;position:relative;
+  border-top:5px solid var(--course-color, var(--gold));
+}
+.folder h3{font-size:1.05rem;margin-bottom:6px;}
+.folder .meta{font-size:0.78rem;color:var(--ink-soft);}
+.folder .progress-bar{height:6px;border-radius:4px;background:var(--paper-line);margin-top:14px;overflow:hidden;}
+.folder .progress-bar>div{height:100%;background:var(--course-color,var(--gold));}
+
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--paper-line);margin-bottom:24px;flex-wrap:wrap;}
+.tabs button{background:none;border:none;padding:10px 14px;font-weight:700;font-size:0.86rem;color:var(--ink-soft);border-bottom:3px solid transparent;margin-bottom:-2px;}
+.tabs button.active{color:var(--ink);border-bottom-color:var(--gold);}
+
+.block{padding:22px 24px;margin-bottom:16px;}
+.block h4{font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gold-deep);font-weight:800;margin-bottom:10px;}
+.block .body-text{color:var(--ink);font-size:0.97rem;line-height:1.7;}
+.block ul{margin:0;padding-left:20px;color:var(--ink);}
+.block li{margin-bottom:6px;line-height:1.55;}
+
+.evidence-btn{
+  display:inline-flex;align-items:center;gap:5px;background:#EFE3C4;color:var(--gold-deep);border:1px solid #DCC488;
+  padding:3px 10px;border-radius:14px;font-size:0.72rem;font-weight:800;margin-left:6px;
+}
+.evidence-chain{display:flex;flex-direction:column;gap:0;margin-top:14px;}
+.evidence-chain .ev-step{
+  display:flex;gap:14px;padding:12px 0;border-left:2px solid var(--paper-line);padding-left:18px;position:relative;
+}
+.evidence-chain .ev-step::before{content:'';position:absolute;left:-6px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--gold);}
+.evidence-chain .ev-step .ev-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--gold-deep);font-weight:800;}
+.evidence-chain .ev-step .ev-val{font-size:0.92rem;color:var(--ink);margin-top:3px;}
+
+.case-card{border:1px solid var(--paper-line);border-radius:12px;padding:16px 18px;margin-bottom:12px;background:var(--paper-raised);cursor:pointer;transition:box-shadow .15s;}
+.case-card:hover{box-shadow:0 8px 20px rgba(22,21,43,0.08);}
+.case-card .cname{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;}
+.case-card .cmeta{font-size:0.78rem;color:var(--ink-soft);margin-top:2px;}
+
+.detail-panel{position:fixed;inset:0;background:rgba(22,21,43,0.55);z-index:100;display:flex;justify-content:flex-end;}
+.detail-panel .sheet{background:var(--paper);width:min(640px,100%);height:100%;overflow-y:auto;padding:28px;box-shadow:-10px 0 40px rgba(0,0,0,0.25);}
+.detail-panel.hidden{display:none;}
+.sheet-close{background:var(--ink);color:#fff;border:none;width:34px;height:34px;border-radius:50%;font-size:1rem;float:right;}
+.ratio-box{background:#FBF3DA;border:1px solid #E7D394;border-radius:10px;padding:14px 16px;margin:10px 0;}
+.ratio-box .rl{font-size:0.68rem;text-transform:uppercase;font-weight:800;color:var(--gold-deep);}
+
+/* flashcards */
+.deck-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;}
+.flip-card{width:100%;max-width:520px;height:270px;perspective:1400px;}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:30px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+.flip-front{background:var(--ink);color:#fff;}
+.flip-back{background:var(--emerald);color:#fff;transform:rotateY(180deg);}
+.flip-face .fk{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;opacity:0.65;font-weight:700;margin-bottom:14px;}
+.flip-face .ftext{font-family:'Fraunces',serif;font-size:1.2rem;line-height:1.5;}
+.deck-controls{display:flex;gap:10px;}
+.deck-controls button{border-radius:10px;padding:10px 18px;font-weight:700;font-size:0.86rem;border:none;}
+.deck-progress{font-size:0.8rem;color:var(--ink-soft);}
+
+/* quiz */
+.q-option{display:block;width:100%;text-align:left;padding:13px 16px;border:1.5px solid var(--paper-line);border-radius:10px;margin-bottom:10px;background:var(--paper-raised);font-size:0.92rem;}
+.q-option:hover{border-color:var(--gold);}
+.q-option.correct{border-color:var(--emerald);background:#E4F2EA;}
+.q-option.wrong{border-color:var(--berry);background:#F7E6E7;}
+.q-option[disabled]{cursor:default;}
+
+/* maxim cards */
+.maxim-card{background:var(--paper-raised);border:1px solid var(--paper-line);border-radius:12px;padding:20px;}
+.maxim-card .lat{font-family:'Fraunces',serif;font-style:italic;font-size:1.15rem;color:var(--emerald-deep);}
+.maxim-card .fav{float:right;background:none;border:none;font-size:1.1rem;}
+
+/* career */
+.career-tag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.career-tile{border:1px solid var(--paper-line);background:var(--paper-raised);border-radius:12px;padding:16px;text-align:left;}
+.career-tile:hover{border-color:var(--gold);}
+.career-tile .ic{font-size:1.4rem;}
+.career-tile h4{font-size:0.95rem;margin-top:6px;}
+
+.demo-banner{background:#FBF3DA;border:1px dashed #D8B95A;border-radius:12px;padding:14px 18px;font-size:0.84rem;color:#6B531A;margin-bottom:22px;}
+
+.status-open{color:var(--emerald-deep);font-weight:800;}
+.status-soon{color:var(--gold-deep);font-weight:800;}
+.status-closed{color:var(--berry);font-weight:800;}
+
+.opp-card{border:1px solid var(--paper-line);border-radius:12px;padding:18px;margin-bottom:12px;background:var(--paper-raised);}
+.opp-card .top-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+
+.reminder-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.reminder-card{border-radius:14px;padding:20px;color:#fff;}
+.reminder-card h4{color:#fff;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;opacity:0.8;margin-bottom:8px;}
+.reminder-card p{color:#fff;font-size:0.95rem;margin:0;}
+
+.progress-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.pstat{border:1px solid var(--paper-line);border-radius:12px;padding:16px;text-align:center;background:var(--paper-raised);}
+.pstat .n{font-family:'Fraunces',serif;font-size:1.7rem;color:var(--emerald-deep);}
+.pstat .l{font-size:0.74rem;color:var(--ink-soft);margin-top:4px;}
+
+.checklist label{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--paper-line);font-size:0.9rem;}
+.checklist input{width:17px;height:17px;accent-color:var(--emerald);}
+
+.form-row{margin-bottom:16px;}
+.form-row label{display:block;font-size:0.8rem;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+.form-row input,.form-row select,.form-row textarea{
+  width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--paper-line);font-family:inherit;font-size:0.93rem;background:#fff;
+}
+.form-row textarea{min-height:110px;resize:vertical;}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--ink-soft);}
+.empty-state .ic{font-size:2.2rem;margin-bottom:10px;}
+
+.search-results-group{margin-bottom:26px;}
+.search-results-group h3{font-size:1rem;margin-bottom:10px;color:var(--emerald-deep);}
+.result-row{padding:11px 0;border-bottom:1px solid var(--paper-line);cursor:pointer;}
+.result-row:hover .rtitle{color:var(--emerald-deep);}
+.result-row .rtitle{font-weight:700;font-size:0.94rem;}
+.result-row .rsub{font-size:0.78rem;color:var(--ink-soft);}
+
+.sticky-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+.sticky{border-radius:10px;padding:16px;font-size:0.88rem;min-height:120px;position:relative;box-shadow:0 3px 10px rgba(0,0,0,0.08);}
+.sticky button{position:absolute;top:8px;right:10px;background:none;border:none;font-size:0.9rem;opacity:0.6;}
+
+.next-block{background:var(--ink);color:#fff;border-radius:16px;padding:28px;margin-top:30px;}
+.next-block h4{color:#fff;font-family:'Fraunces',serif;font-size:1.2rem;margin-bottom:14px;}
+.next-block .checklist label{color:#EDE8D4;border-bottom-color:rgba(255,255,255,0.14);}
+.next-block .next-recs{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+
+.timer-badge{background:var(--berry);color:#fff;padding:6px 14px;border-radius:20px;font-weight:800;font-size:0.9rem;}
+
+.install-strip{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:30px;padding:10px 10px 10px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,0.3);z-index:60;}
+.install-strip button.pill-btn{padding:8px 16px;}
+.install-strip.hidden{display:none;}
+
+@media(max-width:880px){
+  .nav-desktop,.top-actions{display:none;}
+  .mobile-nav{display:block;}
+  .feature-grid{grid-template-columns:1fr 1fr;}
+  .hero-strip{grid-template-columns:repeat(2,1fr);}
+  .landing-band .wrap{flex-direction:column;align-items:flex-start;}
+  .reminder-strip{grid-template-columns:1fr;}
+  .detail-panel .sheet{width:100%;}
+}
+@media(max-width:520px){
+  .feature-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============================= DATA ============================= */
+
+const LATIN = [
+ {m:"Res judicata", mean:"A matter already judged", plain:"Once a court finally decides an issue between two parties, it cannot be re-litigated between them again — case closed, no rematch.", area:"Evidence Law", ex:"Two brothers already fought over a plot in Warri and the court ruled for one of them. Ten years later their children try the same suit over the same plot — the court throws it out.", trick:"Judged once, judged for good."},
+ {m:"Interest reipublicae ut sit finis litium", mean:"It is in the public interest that lawsuits have an end", plain:"The whole justification for res judicata — society benefits when disputes eventually end rather than dragging on forever.", area:"Evidence Law", ex:"Courts won't let old, settled disputes be reopened simply because someone is unhappy with the outcome.", trick:"Litigation must die a natural death."},
+ {m:"Jus accrescendi", mean:"Right of accretion / growth", plain:"The fancy name for right of survivorship in joint tenancy — when one joint owner dies, their share automatically merges into the surviving owners' shares.", area:"Land Law", ex:"Musa, Ada and Chidi are joint tenants. Musa dies — his share flows straight to Ada and Chidi, no matter what his will says.", trick:"The share 'grows' into the survivors."},
+ {m:"Animus possidendi", mean:"Intention to possess", plain:"A requirement for adverse possession — you must genuinely intend to treat the land as your own, not just pass through it casually.", area:"Land Law", ex:"Farming a plot for decades as if it were yours, not merely crossing it to reach somewhere else.", trick:"Mind of an owner, not a visitor."},
+ {m:"Profit à prendre", mean:"Profit to take", plain:"A right to physically take something — fish, timber, minerals, crops — from someone else's land.", area:"Land Law", ex:"Villagers gathering firewood or fishing on communal land under custom.", trick:"You don't just walk on it — you walk away with something."},
+ {m:"Pur autre vie", mean:"For the life of another", plain:"A life estate measured by the life of someone other than the estate holder — 'to A for the life of B'.", area:"Land Law", ex:"A keeps the land only until B dies, even if A is still alive.", trick:"Your time on the land is borrowed from someone else's lifespan."},
+ {m:"Per incuriam", mean:"Through lack of care", plain:"A decision made carelessly, without considering a relevant law or precedent — it doesn't create solid precedent and doesn't bind res judicata.", area:"Evidence Law / Trusts", ex:"A judgment that overlooked a governing statute can later be disregarded as per incuriam.", trick:"Careless ruling, no binding power."},
+ {m:"In limine", mean:"At the threshold", plain:"Dismissed right at the outset — before the real evidence or issues were ever examined.", area:"Evidence Law", ex:"A suit thrown out on a technical objection before trial even begins.", trick:"Struck down at the door."},
+ {m:"Prima facie", mean:"At first sight", plain:"Evidence that looks sufficient on its face, strong enough to require the other side to respond, unless later disproved.", area:"Evidence Law", ex:"A prima facie case of theft is enough to put the accused to their defence.", trick:"Good enough at first glance."},
+ {m:"Mutatis mutandis", mean:"With the necessary changes made", plain:"A rule applies to a new situation with only the small adjustments needed to fit it.", area:"Evidence Law", ex:"The rule for computer evidence applies to website printouts, mutatis mutandis.", trick:"Same rule, small tweak."},
+ {m:"Inter vivos", mean:"Between the living", plain:"A transfer of property made while both parties are alive, unlike a transfer that only takes effect after death.", area:"Land Law", ex:"A gift of land handed over while the giver is still alive.", trick:"Living hand to living hand."},
+ {m:"Locus standi", mean:"Place of standing", plain:"Your legal right to be heard in court — whether it is your own right that is affected, not just the public's.", area:"Constitutional / Environmental Law", ex:"Adesanya v President of Nigeria refused a claim brought merely as a concerned citizen.", trick:"No seat at the table, no case."},
+ {m:"Ratio decidendi", mean:"The reason for deciding", plain:"The actual legal principle a court used to decide a case — the binding part other courts must follow.", area:"General", ex:"In Tulk v Moxhay, the ratio is that a restrictive covenant binds a later owner who had notice of it.", trick:"The 'why' behind the win."},
+ {m:"Obiter dicta", mean:"Things said by the way", plain:"Comments a judge made that weren't necessary to decide the case — persuasive, but not binding.", area:"General", ex:"A judge's passing remark about a hypothetical fact pattern, not the actual facts before the court.", trick:"Said, but not decided."},
+ {m:"Bona fide purchaser for value without notice", mean:"'Equity's Darling'", plain:"Someone who genuinely paid for property and had no reason to suspect anything was wrong — fully protected; nobody can claw the property back from them.", area:"Equity & Trusts", ex:"A buyer who paid market price for a house with no clue it was bought with stolen trust money.", trick:"Paid clean, gets to keep it."},
+ {m:"Pari passu", mean:"With equal step", plain:"Equally, side by side — in insolvency, ordinary creditors are paid pari passu, unless a trust claim lets you skip the queue entirely.", area:"Equity & Trusts", ex:"Unsecured creditors of a bankrupt company share what's left proportionately.", trick:"Everyone walks at the same pace — unless you have a trust claim."},
+ {m:"In personam / In rem", mean:"Against the person / against the thing", plain:"An in personam right binds one specific person; an in rem right attaches to property itself and can be enforced against anyone holding it.", area:"Equity & Trusts", ex:"A tracing claim over an asset is in rem — it follows the asset, not just the wrongdoer.", trick:"Person vs property."},
+];
+
+const CASES_INDEX = {}; // caseId -> {course, topic}
+
+const COURSES = [
+ {
+   id:"evidence", name:"Evidence Law", color:"#B23A48", icon:"⚖️",
+   blurb:"How the courts decide what to believe — proof, presumption, and the rules of admissibility.",
+   topics:[
+     {
+       id:"dying-declaration", title:"Dying Declaration (S.40, Evidence Act)",
+       concept:"When a person is about to die and names their killer, the law makes an exception to the normal ban on hearsay. The reasoning: a dying person has no reason to lie — you don't waste your last breath framing an innocent man.",
+       law:[
+         "The maker must have genuinely believed death was near — actual outcome doesn't matter, belief at the time does.",
+         "The case must concern a death (murder/homicide), even if murder is never ultimately proven.",
+         "The statement must be short, clear, complete, and incapable of double meaning.",
+         "Where two people heard it, both accounts must match — contradictions weaken it.",
+         "Only one witness is needed — no corroboration requirement.",
+         "The defence can use the same statement too, e.g. to argue the deceased provoked the accused.",
+         "If it doesn't clearly point to the cause of death, it fails as a dying declaration.",
+         "Three elements must all be present: made by the deceased, explaining the circumstances of death, and identifying the assailant.",
+         "From Lasma's case: the deceased must have been of sound mind; the court still independently weighs whether to believe it; sign language counts, and no doctor's certificate is required if the surrounding facts show soundness of mind."
+       ],
+       statute:"Section 40, Evidence Act (Nigeria).",
+       cases:[
+        {id:"lasma", name:"Lasma's Case", court:"—", year:"—",
+         facts:"The case that supplies extra conditions for a valid dying declaration beyond the basic elements.",
+         issue:"What further conditions must be satisfied for a dying declaration to be admitted?",
+         decision:"The deceased must have been of sound mind; the court still weighs whether it believes the statement; it need not be spoken (sign language counts), and no medical certificate of soundness of mind is required if the surrounding facts show it.",
+         ratio:"A dying declaration's admissibility depends on the deceased's mental soundness at the time, not on formal medical proof of it.",
+         obiter:"", principle:"Soundness of mind can be inferred from surrounding facts.",
+         examUse:"Cite when your facts show a statement made through gestures or by someone whose sanity is only shown circumstantially."}
+       ],
+       evidence:{principle:"A dying declaration naming the assailant is admissible even though it is hearsay.",
+         chain:["Evidence Act 2011","Section 40","Case: Lasma's Case (extra conditions)","Applied where deceased believed death was imminent"]},
+       flashcards:[
+         {f:"Why does the law trust a dying declaration?", b:"Because the law assumes a dying person has no reason to lie — they'd rather use their last breath naming the real killer."},
+         {f:"How many witnesses are needed for a dying declaration?", b:"Just one — no corroboration is required."},
+         {f:"Can the defence use a dying declaration?", b:"Yes — e.g. to show the deceased provoked the accused, possibly reducing murder to manslaughter."},
+         {f:"The 3-legged stool of a dying declaration?", b:"Made by the deceased; explains the circumstances of death; identifies the assailant."}
+       ],
+       problem:{
+         scenario:"Chuka is found stabbed in his compound in Warri. His neighbour Ijeoma rushes to him. Chuka, fading fast, grabs her wrist and says clearly: \"Na my brother Emeka stab me because of the land quarrel. Tell them... Emeka did it.\" Chuka dies moments later. At Emeka's trial, the prosecution seeks to tender Ijeoma's account of what Chuka said.",
+         ask:"Advise the prosecution on the admissibility of Chuka's statement, and advise Emeka's counsel on how the same statement might be used in his defence."
+       },
+       quiz:[
+         {q:"How many witnesses are required for a dying declaration to be admissible?", options:["Two, minimum","One is sufficient","Three or more","It must be corroborated by documentary evidence"], a:1},
+         {q:"What is the philosophical basis for trusting a dying declaration?", options:["Dying people are legally presumed infallible","A dying person is assumed to have no reason to lie","It is always given under oath","It is corroborated by forensic evidence"], a:1},
+         {q:"Can a dying declaration ever help the defence?", options:["No, it can only be used by the prosecution","Yes — e.g. to show provocation by the deceased","Only if the accused also dies","Only in civil cases"], a:1}
+       ]
+     },
+     {
+       id:"estoppel", title:"Estoppel",
+       concept:"If your words or conduct made someone believe a fact, and they relied on it and acted on it, the law will not let you later deny it — even if denying it would now be the truth. It's about consistency and fairness, not lies versus truth.",
+       law:[
+         "Estoppel by Conduct (S.169, Evidence Act) — if your actions/words made someone believe something and they acted on it, you can't later deny it, even in court.",
+         "Estoppel by Record / Res Judicata — once a competent court has decided an issue, neither party (nor their successors) can relitigate it. Splits into cause-of-action estoppel and issue estoppel.",
+         "Conditions for res judicata: same parties (or privies/successors), same issue and subject matter (exact — even the size of land matters), a final and subsisting judgment on the merits, and a court with proper jurisdiction.",
+         "Estoppel by Deed — parties to a formal deed cannot later challenge its content, unless the deed itself is invalid (fraud, mistake, misrepresentation).",
+         "Estoppel by Agreement (SS.170 & 171) — a tenant who has paid rent cannot challenge the landlord's title; a bailee cannot deny the bailor's ownership; a signer of a bill of lading cannot deny the goods were shipped.",
+         "Estoppel wears two hats: procedural (it must be specifically pleaded) and substantive (it can defeat a whole claim by blocking relevant evidence)."
+       ],
+       statute:"Sections 169, 170 & 171, Evidence Act (Nigeria); estoppel by deed is pure common law.",
+       cases:[
+        {id:"ramsden-dyson", name:"Ramsden v Dyson", court:"House of Lords (England)", year:"—",
+         facts:"A stranger built on land believing it was his own, while the true owner watched without correcting him.",
+         issue:"Can the true owner later assert title against the person who built in the mistaken belief the land was his?",
+         decision:"Equity will not later allow the owner to assert his right where he stood by and let the mistake happen (Lord Cranworth).",
+         ratio:"A landowner who watches a stranger build on his land under a mistaken belief, without correcting them, is estopped from later asserting title — 'estoppel by standing-by'.",
+         obiter:"", principle:"Silence in the face of another's costly mistake can bar your later claim.",
+         examUse:"Cite for any 'standing-by' estoppel fact pattern involving silent landowners watching development."},
+        {id:"chiekwe-obira", name:"Chiekwe v Obira", court:"—", year:"—",
+         facts:"A man sued in a native court for trespass and won damages, then later sued in the High Court for ownership of a larger but ultimately same-sized piece of land.",
+         issue:"Does merely raising an issue in earlier litigation, without a decision on it, create res judicata?",
+         decision:"The plea of res judicata failed — merely raising an issue, without the court deciding on it, does not create estoppel.",
+         ratio:"Res judicata requires an actual prior decision on the specific issue, not merely that it was mentioned.",
+         obiter:"", principle:"No decision, no estoppel.",
+         examUse:"Use to rebut a res judicata plea where the earlier case never actually ruled on the point."},
+        {id:"kate-daewoo", name:"Kate Enterprises Ltd v Daewoo Nig. Ltd", court:"Supreme Court of Nigeria", year:"—",
+         facts:"Concerned how the legal burden of proof operates as a case proceeds.",
+         issue:"Does the legal burden of proof shift between parties during trial?",
+         decision:"The burden does not permanently shift; once a party's evidence tips the balance, the other side must respond or risk losing on that point.",
+         ratio:"The legal burden is fixed on the party who asserted the claim, but unanswered persuasive evidence naturally tips the scale.",
+         obiter:"", principle:"Burden of proof is a 'back and forth' of persuasion, not a relay baton.",
+         examUse:"Cite when explaining how burden and evidential weight interact at trial."}
+       ],
+       evidence:{principle:"A person who caused another to rely on a fact cannot later deny that fact in court.",
+         chain:["Evidence Act 2011","Sections 169–171","Case: Ramsden v Dyson (standing-by)","Case: Chiekwe v Obira (limits of res judicata)"]},
+       flashcards:[
+        {f:"What is the core idea behind estoppel?", b:"You cannot talk from both sides of your mouth — if you led someone to believe something and they relied on it, you can't later deny it."},
+        {f:"Name the four types of estoppel covered.", b:"Estoppel by conduct, by record (res judicata), by deed, and by agreement."},
+        {f:"Must estoppel be pleaded specifically?", b:"Yes — it is procedural in how it's raised, though substantive in its effect."}
+       ],
+       problem:{
+         scenario:"Baba Iyabo owns a plot in Ibadan. A stranger, believing it is his own inherited land, begins building a house on it — laying blocks, roofing it, and eventually moving his family in. Baba Iyabo watches this happen over two years and says nothing. He then shows up demanding the stranger vacate immediately.",
+         ask:"Advise the stranger on any defence available to him, and advise Baba Iyabo on the risk he faces."
+       },
+       quiz:[
+        {q:"Estoppel by standing-by is best illustrated by:", options:["Chiekwe v Obira","Ramsden v Dyson","Kate Enterprises v Daewoo","Osuji v Ekeocha"], a:1},
+        {q:"Which section of the Evidence Act deals with estoppel by conduct?", options:["S.84","S.135","S.169","S.40"], a:2},
+        {q:"For res judicata to succeed, the earlier judgment must be:", options:["Any judgment, even one struck out for lack of jurisdiction","A final and subsisting judgment from a court with jurisdiction","Merely a raised issue","An out-of-court settlement"], a:1}
+       ]
+     },
+     {
+       id:"burden-of-proof", title:"Burden of Proof",
+       concept:"Burden of proof asks: whose job is it to prove what? Whoever asserts a claim generally carries the duty to bring evidence for it.",
+       law:[
+         "S.131(1), Evidence Act — whoever wants judgment on a right or liability depending on certain facts must prove those facts.",
+         "Legal (general/ultimate) burden — the main duty to prove the central issue; in civil cases it usually sits on the plaintiff and does not shift, though unanswered strong evidence tips the scale.",
+         "Evidential burden — a smaller, situational duty to prove a specific fact along the way (e.g. that a survey plan meets admissibility requirements, or that a criminal defence like insanity applies)."
+       ],
+       statute:"Section 131(1), Evidence Act (Nigeria).",
+       cases:[
+        {id:"kate-daewoo-2", name:"Kate Enterprises Ltd v Daewoo Nig. Ltd", court:"Supreme Court of Nigeria", year:"—",
+         facts:"Addressed the 'back and forth' nature of the burden of proof in civil litigation.",
+         issue:"Does the legal burden ever move between parties?",
+         decision:"It stays fixed on the party who asserted the claim, but once persuasive evidence is led, the scale tips and the opponent must respond.",
+         ratio:"Legal burden is fixed; the practical need to respond can shift.",
+         obiter:"", principle:"Unanswered credible evidence naturally favours the party who led it.",
+         examUse:"Use to distinguish 'legal burden' from the practical pressure to respond."},
+        {id:"elema-akenzua", name:"Elema v Akenzua", court:"Supreme Court of Nigeria", year:"—",
+         facts:"Considered how proof of issues arising mid-trial is allocated in civil cases.",
+         issue:"How does the evidential burden operate once the main burden is on the plaintiff?",
+         decision:"While the main burden starts on the plaintiff, the duty to prove or disprove issues that arise along the way shifts back and forth as the case progresses.",
+         ratio:"Evidential burden is dynamic and issue-specific, unlike the fixed legal burden.",
+         obiter:"", principle:"Track burden issue-by-issue, not just case-by-case.",
+         examUse:"Cite to justify shifting the evidential burden onto a defendant who raises a new fact."},
+        {id:"strabag-ibitokun", name:"Strabag Construction (Nig) Ltd v Ibitokun", court:"Supreme Court of Nigeria", year:"—",
+         facts:"A land dispute where the defendant raised a partition defence not pleaded by the plaintiff.",
+         issue:"Who bears the burden of proving a new fact (partition) raised mid-trial?",
+         decision:"The defendant who introduced the partition defence bore the evidential burden to prove it, and would lose on that point if he failed to.",
+         ratio:"Whoever introduces a new fact carries the evidential burden of proving it.",
+         obiter:"", principle:"New facts raised in defence must be proved by the party raising them.",
+         examUse:"Cite in any land dispute where a defendant raises an unpleaded factual defence."}
+       ],
+       evidence:{principle:"The party who asserts a fact must generally prove it.",
+        chain:["Evidence Act 2011","Section 131(1)","Case: Elema v Akenzua (evidential burden shifts)","Case: Strabag v Ibitokun (new fact = new burden)"]},
+       flashcards:[
+        {f:"Legal burden vs evidential burden — what's the difference?", b:"Legal burden is the fixed duty to prove the whole case (usually the plaintiff); evidential burden is the situational duty to prove a specific fact that comes up along the way."},
+        {f:"Does the legal burden shift during trial?", b:"No — it stays on the party who asserted the claim, though unanswered strong evidence tips the practical balance."}
+       ],
+       problem:{
+         scenario:"A sues B claiming ownership of land in Oleh. During trial, B argues the land was partitioned among family members long ago, and his portion is what he sold.",
+         ask:"Identify who carries the legal burden and who carries the evidential burden on the partition issue, and advise both parties."
+       },
+       quiz:[
+        {q:"In a civil case, the legal burden of proof usually rests on:", options:["The defendant","The plaintiff","The judge","Whoever has more money"], a:1},
+        {q:"An accused raising an insanity defence carries:", options:["The legal burden to prove it beyond reasonable doubt","No burden at all","The evidential burden, to the civil standard","The burden of proving the prosecution's case"], a:2}
+       ]
+     },
+     {
+       id:"standard-of-proof", title:"Standard of Proof",
+       concept:"Standard of proof asks how convinced the judge must be. Civil cases use the balance of probabilities; criminal cases use the tougher beyond reasonable doubt.",
+       law:[
+        "Civil cases — balance of probabilities / preponderance of evidence: whichever side's evidence is more convincing, even narrowly, wins.",
+        "Exception: where a party alleges a crime within a civil case (e.g. forgery in a land dispute), that specific allegation must be proved beyond reasonable doubt (S.135(1), Evidence Act).",
+        "Criminal cases — beyond reasonable doubt: guilt must be shown to a point where no reasonable, sensible person would have genuine doubt. It is not mathematical certainty, but quality, not quantity, of evidence matters.",
+        "Where an accused raises a defence (e.g. insanity), they need only prove it on the balance of probabilities, not beyond reasonable doubt."
+       ],
+       statute:"Section 135(1), Evidence Act (Nigeria).",
+       cases:[
+        {id:"osuji-ekeocha", name:"Osuji v Ekeocha", court:"Supreme Court of Nigeria", year:"—",
+         facts:"Confirmed how civil cases are decided on the facts presented by each side.",
+         issue:"What is the standard for deciding civil cases?",
+         decision:"Civil cases are decided on the balance of probabilities — a matter of judicial skill and judgment, not a literal weighing machine.",
+         ratio:"Balance of probabilities is a judgment call, not arithmetic.",
+         obiter:"", principle:"Whichever side's case is more probable wins.", examUse:"Cite to explain the civil standard of proof."},
+        {id:"state-onyekwu", name:"The State v Onyekwu", court:"—", year:"—",
+         facts:"Clarified what 'beyond reasonable doubt' actually requires.",
+         issue:"Does beyond reasonable doubt mean beyond any conceivable doubt?",
+         decision:"No — it means no fair-minded judge would convict where genuine, sensible doubt remains; it need not exclude every conceivable doubt.",
+         ratio:"Beyond reasonable doubt is a practical, not absolute, standard.",
+         obiter:"", principle:"Reasonable doubt, not imaginary doubt, defeats a conviction.", examUse:"Cite when a defence argues over-strict interpretation of the criminal standard."},
+        {id:"ukpe-state", name:"Ukpe v State", court:"—", year:"—",
+         facts:"Addressed whether quantity of evidence alone satisfies the criminal standard.",
+         issue:"Is quantity or quality of evidence decisive for proof beyond reasonable doubt?",
+         decision:"Quality matters more than quantity — solid, believable evidence outweighs many weak witnesses.",
+         ratio:"Beyond reasonable doubt is about evidential quality.",
+         obiter:"", principle:"One strong witness beats ten weak ones.", examUse:"Use to argue that a single credible witness can meet the criminal standard."},
+        {id:"edoho-state", name:"Edoho v State", court:"—", year:"—",
+         facts:"Concerned the standard an accused must meet when raising the defence of insanity.",
+         issue:"What standard applies to an accused's defence of insanity?",
+         decision:"The accused need only prove insanity on the balance of probabilities, not beyond reasonable doubt.",
+         ratio:"Defence standards mirror the civil standard, even in criminal trials.",
+         obiter:"", principle:"The prosecution's burden stays high; the defence's burden is lower.", examUse:"Cite whenever an accused raises an affirmative defence."}
+       ],
+       evidence:{principle:"Civil claims need only be more probable than not; criminal guilt must be beyond reasonable doubt.",
+        chain:["Evidence Act 2011","Section 135(1)","Case: Osuji v Ekeocha (civil standard)","Case: The State v Onyekwu (criminal standard)"]},
+       flashcards:[
+        {f:"What is the civil standard of proof?", b:"Balance of probabilities — whichever side's case is more likely true, even narrowly, wins."},
+        {f:"What is the criminal standard of proof?", b:"Beyond reasonable doubt — guilt so clear that no reasonable person would genuinely doubt it."},
+        {f:"What standard applies to a crime alleged inside a civil case?", b:"Beyond reasonable doubt, for that specific allegation, under S.135(1)."}
+       ],
+       problem:{
+         scenario:"In a civil suit over a disputed land sale agreement, the claimant alleges the defendant forged the signature on the deed.",
+         ask:"Advise on what standard of proof applies to (a) the ownership claim generally, and (b) the forgery allegation specifically."
+       },
+       quiz:[
+        {q:"Beyond reasonable doubt means:", options:["100% mathematical certainty","No genuine doubt a reasonable, sensible person would hold","More likely than not","Corroborated by two witnesses"], a:1},
+        {q:"An accused raising an insanity defence must prove it:", options:["Beyond reasonable doubt","On the balance of probabilities","Beyond any conceivable doubt","Only if the prosecution fails to object"], a:1}
+       ]
+     },
+     {
+       id:"computer-evidence", title:"Computer-Generated Evidence (S.84)",
+       concept:"Section 84 of the Evidence Act 2011 governs when computer-produced evidence (printouts, emails, data logs, website pages) is admissible — targeting complex evidence whose accuracy depends on the computer's own processing.",
+       law:[
+        "S.84(2): the computer must have been regularly used to store/process the relevant kind of information; information of that kind must have been regularly fed in; the computer must have been working properly (or any fault didn't affect accuracy); and the output must reflect or be properly derived from the input.",
+        "S.84(4): a certificate identifying the document, describing how it was produced, and detailing the device — signed by someone in a responsible position — is required in addition to the four conditions. The signer need not be a technical expert, just familiar with the system.",
+        "If the printout is also a public document, S.104's certification rules for public documents apply in addition to S.84.",
+        "Emails and website printouts are treated as computer-generated documents and fall under the same S.84 regime."
+       ],
+       statute:"Section 84, Evidence Act 2011 (Nigeria); Section 104 for public documents.",
+       cases:[
+        {id:"kubor-dickson", name:"Kubor v Dickson", court:"Supreme Court of Nigeria", year:"—",
+         facts:"In an election dispute over the Bayelsa State governorship, the appellant tendered internet printouts (a newspaper article and an INEC website list) without the S.84 certificate.",
+         issue:"Are computer-generated printouts admissible without the S.84(4) certificate?",
+         decision:"The Supreme Court refused the documents — without the certificate, they were simply inadmissible, however relevant or genuine they appeared.",
+         ratio:"Non-compliance with S.84(4)'s certificate requirement renders computer-generated evidence inadmissible, regardless of its apparent truth.",
+         obiter:"", principle:"No certificate, no admission — like entering an exam hall without an ID card.",
+         examUse:"The landmark citation for any S.84 admissibility problem question."},
+        {id:"dpp-jones", name:"D.P.P v Jones", court:"England", year:"—",
+         facts:"A witness without electronics expertise testified about a breathalyzer machine's operation.",
+         issue:"Must the S.84-type certifying witness be a technical expert?",
+         decision:"No — it is enough that the witness is familiar with how the system works.",
+         ratio:"Familiarity, not technical expertise, is the threshold for a certifying witness.",
+         obiter:"", principle:"You don't need an engineer, just someone who knows the machine.",
+         examUse:"Cite to rebut an objection that the certifying witness lacked IT expertise."},
+        {id:"perfect10-cybernet", name:"Perfect 10 Inc. v Cybernet Ventures", court:"USA", year:"—",
+         facts:"A website printout was tendered, and a witness confirmed it was a true, correct copy of what was downloaded.",
+         issue:"What authenticates a website printout as evidence?",
+         decision:"The printout was accepted once a witness vouched for its accuracy.",
+         ratio:"Authentication by a witness who can vouch for accuracy supports admissibility of web-based evidence.",
+         obiter:"", principle:"Someone must vouch that the printout matches what was actually online.",
+         examUse:"Cite on authentication of website evidence alongside S.84."}
+       ],
+       evidence:{principle:"A computer printout is inadmissible unless it satisfies the S.84(2) conditions and carries the S.84(4) certificate.",
+        chain:["Evidence Act 2011","Section 84(2) and 84(4)","Case: Kubor v Dickson (certificate is mandatory)","Case: D.P.P v Jones (certifier need not be an expert)"]},
+       flashcards:[
+        {f:"What does S.84(4) require in addition to the four S.84(2) conditions?", b:"A signed certificate identifying the document, describing how it was produced, and detailing the device used."},
+        {f:"Does the certifying witness need to be a technical expert?", b:"No — familiarity with the system is enough (D.P.P v Jones)."},
+        {f:"What happened in Kubor v Dickson?", b:"Internet printouts tendered without a S.84 certificate were held inadmissible by the Supreme Court, however genuine they looked."}
+       ],
+       problem:{
+         scenario:"During an election petition, a party seeks to tender a printout from a government agency's website showing voter figures, but no certificate under S.84(4) was prepared.",
+         ask:"Advise on the admissibility of the printout, citing the relevant statute and authority."
+       },
+       quiz:[
+        {q:"Kubor v Dickson establishes that computer-generated printouts:", options:["Are always admissible if relevant","Require a S.84(4) certificate to be admissible","Only need a court stamp","Cannot be used in election petitions at all"], a:1},
+        {q:"Under S.84(4), the certifying witness must be:", options:["A licensed IT engineer","Someone in a responsible position familiar with the system","A judge","The original author of the software"], a:1}
+       ]
+     }
+   ]
+ },
+ {
+   id:"land", name:"Land Law", color:"#1F6E52", icon:"🏛️",
+   blurb:"Estates, interests, and the machinery that lets people own, share, and secure land.",
+   topics:[
+    {id:"freehold", title:"Freehold Interest in Land",
+     concept:"Freehold is the strongest form of land ownership, lasting indefinitely and freely transferable or inheritable — contrasted with leasehold, which is for a fixed term.",
+     law:[
+      "Fee Simple Absolute in Possession — the 'full package': inheritable ('fee'), unconditional ('simple'), unlimited in duration ('absolute'), enjoyed now ('in possession').",
+      "Life Estate — ownership lasts only until the holder's death, or another named person's death ('pur autre vie'); a life tenant must not commit waste that devalues the property for whoever inherits after.",
+      "Fee Tail — inheritance limited to a specific bloodline; largely abolished, mostly converted into fee simple.",
+      "Under the Land Use Act 1978, all land in Nigeria vests in the state Governor; individuals instead hold a Statutory Right of Occupancy (urban) or Customary Right of Occupancy (rural), which functions like freehold day-to-day."
+     ],
+     statute:"Land Use Act 1978 (Nigeria).",
+     cases:[{id:"amodu-tijani", name:"Amodu Tijani v Secretary, Southern Nigeria", court:"Privy Council", year:"—",
+       facts:"Concerned the nature of native (customary) land title in colonial Nigeria.",
+       issue:"How should native title be characterised in law?",
+       decision:"Native title was described as a 'usufructuary right' — a right to use and enjoy land belonging to another — treated with the seriousness of a freehold-type right.",
+       ratio:"Customary land title, though not English freehold, deserves comparable legal respect and protection.",
+       obiter:"", principle:"Customary occupation rights are substantive property rights, not mere permissions.",
+       examUse:"Cite to explain the legal character of customary land holding."}],
+     evidence:{principle:"All Nigerian land vests in the Governor; individuals hold rights of occupancy that function like freehold.",
+       chain:["Land Use Act 1978","Statutory / Customary Right of Occupancy","Case: Amodu Tijani v Secretary, Southern Nigeria"]},
+     flashcards:[{f:"What does 'fee simple absolute in possession' mean?", b:"Full, unconditional, unlimited ownership enjoyed right now — the strongest estate in land."},
+       {f:"What replaced true freehold under Nigeria's Land Use Act?", b:"Statutory Rights of Occupancy (urban) and Customary Rights of Occupancy (rural), since all land vests in the Governor."}],
+     problem:{scenario:"Mr. Balogun believes he owns his family land in Ogun State 'freehold' and wants to will it exactly as English freehold to his children.",
+       ask:"Advise Mr. Balogun on the true nature of his interest under Nigerian law."},
+     quiz:[{q:"Under the Land Use Act 1978, ultimate title to all land in a state vests in:", options:["The Local Government Chairman","The Governor","The Federal Government","The original customary owner"], a:1},
+       {q:"'Pur autre vie' describes:", options:["A fee simple","A life estate measured by another person's life","A leasehold","A profit à prendre"], a:1}]
+    },
+    {id:"joint-tenancy", title:"Joint Tenancy",
+     concept:"Two or more people own land together as one unit, with the right of survivorship (jus accrescendi): when one joint tenant dies, their share automatically flows to the survivors, regardless of any will.",
+     law:[
+      "The Four Unities must all be present: possession (everyone can use the whole land), interest (identical type/amount of interest), title (same document/transaction), and time (ownership began simultaneously). Remove any one and it becomes tenancy in common.",
+      "Severance converts a joint tenancy into a tenancy in common, killing survivorship — by mutual agreement, one tenant unilaterally dealing with their own share, or court order.",
+      "Equity is suspicious of joint tenancy where contributions were unequal or the arrangement is commercial rather than familial, and will lean towards presuming a tenancy in common instead."
+     ],
+     statute:"Common law / equity doctrine, applied within Nigerian land law.",
+     cases:[
+      {id:"re-caines", name:"Re Caines (Deceased)", court:"—", year:"—",
+       facts:"Considered whether a joint tenant's will could override survivorship.",
+       issue:"Does a will defeat the right of survivorship in a joint tenancy?",
+       decision:"The right of survivorship takes precedence over any will.",
+       ratio:"Survivorship operates automatically on death and cannot be defeated by testamentary disposition.",
+       obiter:"", principle:"A joint tenant's share is never really 'theirs' to will away.",
+       examUse:"Cite whenever a will purports to dispose of a joint tenant's interest."},
+      {id:"williams-hensman", name:"Williams v Hensman", court:"England", year:"—",
+       facts:"The foundational case on how a joint tenancy can be severed.",
+       issue:"By what methods can a joint tenancy be severed?",
+       decision:"Severance can occur by mutual agreement, by one tenant unilaterally acting on their own share, or by course of dealing/court order.",
+       ratio:"Severance methods are flexible but must show a clear intention to sever.",
+       obiter:"", principle:"Any joint tenant can unilaterally break survivorship as to their own share.",
+       examUse:"The go-to citation for any severance problem question."},
+      {id:"malayan-credit", name:"Malayan Credit Ltd v Jack Chia-MPH Ltd", court:"Privy Council", year:"—",
+       facts:"Business partners contributed unequal amounts to a joint commercial property purchase.",
+       issue:"Should equity presume joint tenancy or tenancy in common in a commercial context with unequal contributions?",
+       decision:"Equity presumed a tenancy in common because of the unequal contributions and commercial nature of the deal.",
+       ratio:"Equity leans against joint tenancy in commercial arrangements with unequal contributions.",
+       obiter:"", principle:"Business deals with unequal input usually mean separate, not merged, shares.",
+       examUse:"Cite to argue against a presumption of joint tenancy in commercial land purchases."}
+     ],
+     evidence:{principle:"On the death of a joint tenant, their share passes automatically to the surviving joint tenants.",
+       chain:["Common law doctrine of the Four Unities","Case: Re Caines (survivorship beats a will)","Case: Williams v Hensman (methods of severance)"]},
+     flashcards:[{f:"Name the Four Unities of a joint tenancy.", b:"Possession, Interest, Title, and Time."},
+      {f:"What is jus accrescendi?", b:"The right of survivorship — a deceased joint tenant's share automatically passes to the surviving joint tenants."},
+      {f:"How can a joint tenancy be severed?", b:"By mutual agreement, by one tenant unilaterally dealing with their own share, or by court order (Williams v Hensman)."}],
+     problem:{scenario:"Musa, Ada and Chidi buy land together as joint tenants. Musa's will leaves 'my share of the land' to his son. Musa later dies.",
+       ask:"Advise Musa's son on whether he inherits any interest in the land."},
+     quiz:[{q:"Which of the following is NOT one of the Four Unities?", options:["Unity of Possession","Unity of Interest","Unity of Consideration","Unity of Time"], a:2},
+      {q:"Severance of a joint tenancy converts it into:", options:["A leasehold","A tenancy in common","A life estate","A fee tail"], a:1}]
+    },
+    {id:"tenancy-common", title:"Tenancy in Common",
+     concept:"The opposite of joint tenancy: each owner holds a separate, undivided share (equal or unequal) with no right of survivorship — a deceased tenant's share passes to their heirs or will.",
+     law:[
+      "Only one unity is required: unity of possession — everyone can use the whole property, but shares, start dates and documents can differ.",
+      "Equity presumes tenancy in common where contributions to the purchase price were unequal, where the arrangement is commercial, or where property was bought jointly but meant to be held for children or others."
+     ],
+     statute:"Common law / equity doctrine.",
+     cases:[],
+     evidence:{principle:"Each tenant in common's share devolves on death to their own heirs, not to co-owners.",
+       chain:["Common law doctrine — Unity of Possession only","Equity's presumption against joint tenancy in unequal/commercial purchases"]},
+     flashcards:[{f:"How many unities does tenancy in common require?", b:"Just one — unity of possession."},
+      {f:"Does a tenant in common's share pass to the co-owners on death?", b:"No — it passes to their own heirs or under their will, since there is no right of survivorship."}],
+     problem:{scenario:"Two business partners buy a commercial plot, contributing ₦7m and ₦3m respectively, with no express words in the deed about how they hold it.",
+       ask:"Advise on how equity is likely to presume they hold the land, and why."},
+     quiz:[{q:"Tenancy in common differs from joint tenancy mainly because:", options:["It requires all four unities","There is no right of survivorship","It cannot be created by deed","It only applies to leaseholds"], a:1}]
+    },
+    {id:"proscription", title:"Proscription (Limitation of Actions)",
+     concept:"A statutory time-bar: if the true owner does not bring an action to recover land within the fixed limitation period, their right to recover it is extinguished.",
+     law:[
+      "The clock does not run, or resets, where the owner is under a disability (e.g. a minor), where the possessor acknowledges the true owner's title, or where court action is filed within the period.",
+      "Under customary law, the period is often longer (20–30 years), grounded in laches and acquiescence — silent tolerance for decades can itself defeat a claim."
+     ],
+     statute:"Limitation Law (state legislation, Nigeria).",
+     cases:[{id:"ogunleye-oni", name:"Ogunleye v Oni", court:"—", year:"—",
+       facts:"A recovery of land claim was brought after the statutory limitation period had lapsed.",
+       issue:"Does lapse of the limitation period bar a recovery claim?",
+       decision:"Yes — the lapse of time under the Limitation Law successfully barred the claim.",
+       ratio:"Statutory limitation periods extinguish the right to recover land once they expire.",
+       obiter:"", principle:"Sleep past the deadline, lose the remedy.",
+       examUse:"Cite whenever a limitation defence is raised in a land recovery suit."}],
+     evidence:{principle:"A claim to recover land is barred once the statutory limitation period has lapsed, absent an exception.",
+       chain:["Limitation Law (state)","Exceptions: disability, acknowledgment, court action within time","Case: Ogunleye v Oni"]},
+     flashcards:[{f:"What three things pause or reset the limitation clock?", b:"Owner's disability, the possessor's acknowledgment of the true owner's title, and filing court action within the period."}],
+     problem:{scenario:"Mr. Eze's family land has been occupied by a stranger for 15 years with no acknowledgment of Eze's title and no court action taken.",
+       ask:"Advise Mr. Eze on whether he can still recover the land, assuming a 12-year limitation period applies."},
+     quiz:[{q:"Proscription is best described as:", options:["An equitable doctrine with no fixed time","A statutory time-bar on recovering land","A rule only for criminal cases","A rule that only benefits tenants"], a:1}]
+    },
+    {id:"laches", title:"Laches",
+     concept:"Laches is proscription's equitable cousin — a flexible defence based on unreasonable delay and prejudice, not a rigid statutory clock. 'Equity aids the vigilant, not those who sleep on their rights.'",
+     law:[
+      "Three elements: unreasonable, inexcusable delay; knowledge of the right and sitting on it; and prejudice or a change of position by the other party in reliance on the silence.",
+      "Laches applies especially to equitable remedies (injunctions, declarations), and can bar relief even where a limitation statute has not technically expired."
+     ],
+     statute:"Equitable doctrine (no statute).",
+     cases:[
+      {id:"akanni-makanju", name:"Akanni v Makanju", court:"Supreme Court of Nigeria", year:"—",
+       facts:"The plaintiff stood by for many years while the defendant remained in possession of disputed land.",
+       issue:"Can a plaintiff who delayed for years still obtain equitable relief?",
+       decision:"The plaintiff was held guilty of laches and acquiescence.",
+       ratio:"Long, unexplained delay while the other party remains in possession bars equitable relief.",
+       obiter:"", principle:"Standing by for years forfeits the right to complain.", examUse:"The core laches citation."},
+      {id:"oshodi-eyifunmi", name:"Oshodi v Eyifunmi", court:"Supreme Court of Nigeria", year:"—",
+       facts:"Concerned a legally valid land title asserted only after many years of inaction.",
+       issue:"Can a valid legal title still be barred in equity?",
+       decision:"Yes — even a legally valid right to land can be barred in equity if not asserted for many years.",
+       ratio:"Legal validity does not immunise a claim from the equitable defence of laches.",
+       obiter:"", principle:"Being right isn't enough — you must also be timely.", examUse:"Cite to show laches can defeat even a technically valid title."},
+      {id:"nwosu-udeaja", name:"Nwosu v Udeaja", court:"—", year:"—",
+       facts:"A claimant watched the defendant spend large sums developing disputed land, then sought to reclaim it.",
+       issue:"Can a claimant reclaim land after watching the defendant invest heavily in it?",
+       decision:"No — equity will not allow reclamation after such silent acquiescence to major investment.",
+       ratio:"Silent tolerance of substantial development defeats a later claim.",
+       obiter:"", principle:"You can't watch someone build their life on land and then snatch it away.", examUse:"Cite where facts show significant unopposed development."}
+     ],
+     evidence:{principle:"Equity will refuse relief to a claimant who delayed unreasonably while the other party relied on that silence.",
+       chain:["Equitable maxim: equity aids the vigilant","Case: Akanni v Makanju","Case: Oshodi v Eyifunmi","Case: Nwosu v Udeaja"]},
+     flashcards:[{f:"What are the three elements of laches?", b:"Unreasonable delay, knowledge of the right, and prejudice/change of position by the other side."},
+      {f:"Laches vs proscription — key difference?", b:"Laches is equitable with no fixed time limit and needs prejudice; proscription is statutory with a fixed time limit and doesn't necessarily need prejudice."}],
+     problem:{scenario:"Mrs. Ebele watches Mr. Godwin build houses and a school on her land over 20 years without objecting, then suddenly sues for a declaration of title.",
+       ask:"Advise Mr. Godwin on the defence of laches, identifying the three elements he must establish."},
+     quiz:[{q:"Laches, unlike proscription, requires proof of:", options:["A fixed 12-year period","Prejudice or change of position", "A written deed","Government consent"], a:1},
+      {q:"Which case held a claimant guilty of laches for standing by for years?", options:["Akanni v Makanju","Tulk v Moxhay","Ajilo v Adeyemi","Oduye v Nigeria Airways"], a:0}]
+    },
+    {id:"leasehold", title:"Leasehold Interest",
+     concept:"Leasehold is land ownership for a fixed period, granted by a landlord (lessor) to a tenant (lessee), usually for rent; the land reverts to the landlord once the term ends.",
+     law:[
+      "A valid lease requires: exclusive possession, certainty of term, (usually) rent, and intention to create legal relations.",
+      "Types: fixed-term (ends automatically), periodic (renews until notice), tenancy at will (ends anytime), tenancy at sufferance (overstaying without consent).",
+      "Under the Land Use Act, leases involving transfer of interest often need the Governor's consent."
+     ],
+     statute:"Land Use Act 1978 (Nigeria).",
+     cases:[
+      {id:"oduye-nal", name:"Oduye v Nigeria Airways Ltd", court:"Supreme Court of Nigeria", year:"—",
+       facts:"A dispute over whether an arrangement, whatever it was called, amounted to a lease.",
+       issue:"Does the label given to a document determine whether it is a lease?",
+       decision:"No — whatever the document is called, if it grants exclusive possession for a term in exchange for rent, it is legally a lease.",
+       ratio:"Substance over form: the legal character of an arrangement is determined by its content, not its title.",
+       obiter:"", principle:"Call it what you like — if it walks and talks like a lease, it's a lease.",
+       examUse:"Cite to argue an arrangement is really a lease despite a different label."},
+      {id:"ogunbambi-abowaba", name:"Ogunbambi v Abowaba", court:"—", year:"—",
+       facts:"Concerned how a tenancy at will could be terminated.",
+       issue:"Does ending a tenancy at will require formal notice?",
+       decision:"A tenancy at will can be ended anytime, without needing formal notice.",
+       ratio:"Tenancy at will is inherently precarious and terminable without notice.",
+       obiter:"", principle:"No fixed term means no fixed exit formality.", examUse:"Cite for questions on ending informal tenancies."},
+      {id:"ajilo-adeyemi", name:"Ajilo v Adeyemi", court:"—", year:"—",
+       facts:"Highlighted the importance of Governor's consent for leases under the Land Use Act.",
+       issue:"Is Governor's consent required for a lease transferring an interest in land?",
+       decision:"Yes — such consent is important and its absence has significant legal consequences.",
+       ratio:"Leases transferring interests in land under the Land Use Act require Governor's consent to be valid.",
+       obiter:"", principle:"No consent, no valid transfer — a very Nigeria-specific requirement.",
+       examUse:"Cite whenever a lease problem question involves the Land Use Act."}
+     ],
+     evidence:{principle:"An arrangement is a lease if it grants exclusive possession for a certain term in exchange for rent, regardless of its label.",
+       chain:["Common law elements of a lease","Case: Oduye v Nigeria Airways Ltd (substance over form)","Land Use Act 1978 — Governor's consent","Case: Ajilo v Adeyemi"]},
+     flashcards:[{f:"What four elements make a valid lease?", b:"Exclusive possession, certainty of term, (usually) rent, and intention to create legal relations."},
+      {f:"Does the name of a document determine if it's a lease?", b:"No — substance over form; Oduye v Nigeria Airways Ltd."}],
+     problem:{scenario:"A company occupies office space under a document titled 'Licence Agreement', but has exclusive use of the space for a fixed 5-year term and pays monthly rent.",
+       ask:"Advise on whether this arrangement is, in law, a lease despite its title."},
+     quiz:[{q:"A document's title determines whether it is legally a lease.", options:["True","False"], a:1},
+      {q:"Under the Land Use Act, a lease transferring an interest in land typically requires:", options:["Registration only","Governor's consent","No formalities","A court order"], a:1}]
+    },
+    {id:"easement", title:"Easement",
+     concept:"A right to use someone else's land in a specific way, without taking possession of it — e.g. a right of passage through a neighbour's compound.",
+     law:[
+      "Dominant tenement benefits from the easement; servient tenement carries the burden.",
+      "Four essential ingredients (Re Ellenborough Park): dominant and servient tenement must both exist; the right must genuinely benefit the dominant land; the two lands must be owned by different people; the right must be capable of formal grant.",
+      "Common types: right of way, right of light, right of support, right to air.",
+      "Creation: express grant, by implication, by necessity, or by prescription (long, open, continuous use, usually 20 years)."
+     ],
+     statute:"Common law doctrine, recognised within the Land Use Act framework.",
+     cases:[{id:"umunna-okwuraiwe", name:"Umunna v Okwuraiwe", court:"Supreme Court of Nigeria", year:"—",
+       facts:"Concerned a person's right to access land through a traditional customary footpath.",
+       issue:"Can informal, long-used customary paths be legally protected as easements?",
+       decision:"Yes — the Supreme Court upheld the right to access land through the customary footpath.",
+       ratio:"Long-used customary access rights can be legally protected as easements.",
+       obiter:"", principle:"Custom can create a right of way just as a deed can.",
+       examUse:"Cite for any easement arising from customary/traditional footpaths."}],
+     evidence:{principle:"A right of way used openly and continuously for a long period may be protected as an easement.",
+       chain:["Re Ellenborough Park — four ingredients","Case: Umunna v Okwuraiwe (customary footpath protected)"]},
+     flashcards:[{f:"Dominant vs servient tenement?", b:"Dominant tenement benefits from the easement; servient tenement carries the burden."},
+      {f:"How long must open, continuous use last to create an easement by prescription?", b:"Usually 20 years."}],
+     problem:{scenario:"A family has used a footpath across their neighbour's land to reach the main road for over 30 years without any formal grant.",
+       ask:"Advise the family on whether they may have acquired an easement, and by what method."},
+     quiz:[{q:"An easement by prescription typically requires open, continuous use of about:", options:["5 years","20 years","50 years","100 years"], a:1},
+      {q:"Can you have an easement over your own land?", options:["Yes, always","No — the dominant and servient land must be owned by different people","Only with a court order","Only in customary law"], a:1}]
+    },
+    {id:"profit-a-prendre", title:"Profit à Prendre",
+     concept:"French for 'profit to take' — a right to take something physical from someone else's land: fish, timber, minerals, crops, game.",
+     law:[
+      "Appurtenant profit is tied to a piece of land; profit in gross is not tied to any land ownership and can be held independently.",
+      "Creation: express grant, prescription (usually 20 years), implication, or custom.",
+      "Nigerian customary flavour: villagers gathering fruits, firewood, medicinal herbs, or fishing on communal land are effectively exercising customary profit rights, protected under the Land Use Act if exercised in line with native law and custom."
+     ],
+     statute:"Common law; recognised alongside the Land Use Act for customary exercise.",
+     cases:[{id:"ag-southern-nigeria-holt", name:"A.-G. of Southern Nigeria v John Holt & Co.", court:"—", year:"—",
+       facts:"Concerned the enforceability of profit à prendre rights in a colonial territory.",
+       issue:"Is profit à prendre enforceable under common law in Nigeria?",
+       decision:"Yes — its enforceability under common law was recognised even in colonial territories.",
+       ratio:"Profit à prendre is a recognised and enforceable common law right in Nigeria.",
+       obiter:"", principle:"Taking resources under a recognised right is legally protected, not trespass.",
+       examUse:"Cite to establish the historical recognition of profit à prendre in Nigeria."}],
+     evidence:{principle:"A right to take produce, timber, or minerals from another's land can be a recognised legal interest.",
+       chain:["Common law doctrine of profit à prendre","Case: A.-G. of Southern Nigeria v John Holt & Co.","Land Use Act — customary exercise"]},
+     flashcards:[{f:"Easement vs profit à prendre?", b:"An easement only lets you use land; a profit à prendre lets you take something physical from it."},
+      {f:"What is 'profit in gross'?", b:"A profit à prendre not tied to any land ownership — held independently, e.g. by a mining company."}],
+     problem:{scenario:"A mining company claims a right to extract minerals from communal land under a decades-old arrangement with the community, without owning any land nearby.",
+       ask:"Advise on the nature of the company's right and how it might be classified."},
+     quiz:[{q:"A profit à prendre 'in gross' is:", options:["Tied to ownership of neighbouring land","Not tied to any land ownership at all","Only available to government agencies","Only recognised in England"], a:1}]
+    },
+    {id:"covenants", title:"Covenants in Land Law",
+     concept:"A covenant is a formal promise in a deed about what must (positive) or must not (restrictive/negative) be done with land. The key question: does the promise bind future owners?",
+     law:[
+      "Positive covenants generally do NOT run with the land at common law or in equity.",
+      "Restrictive covenants CAN run with the land in equity if: genuinely negative in nature; benefits a dominant tenement; the original parties intended it to bind future owners; and the new owner had notice of it.",
+      "Remedies for breach: injunction, damages, or specific performance."
+     ],
+     statute:"Equitable doctrine established in Tulk v Moxhay.",
+     cases:[{id:"tulk-moxhay", name:"Tulk v Moxhay", court:"England (Court of Chancery)", year:"—",
+       facts:"A landowner sold a London garden with a covenant that the buyer would not build on it, keeping it open green space. The land changed hands several times; a later purchaser who knew of the covenant tried to build anyway, arguing it was only a personal promise between the original parties.",
+       issue:"Does a restrictive covenant bind a later purchaser who had notice of it?",
+       decision:"Yes — because the new owner had notice of the restriction and it benefited neighbouring land, equity enforced it against them.",
+       ratio:"A restrictive covenant runs with the land in equity where the burdened owner had notice and the covenant benefits a dominant tenement.",
+       obiter:"", principle:"Notice + benefit to neighbouring land = the promise follows the land, not just the person.",
+       examUse:"THE landmark citation for restrictive covenants running with land."}],
+     evidence:{principle:"A restrictive covenant can bind successive owners of burdened land in equity.",
+       chain:["Equitable doctrine of running covenants","Case: Tulk v Moxhay (origin of the principle)"]},
+     flashcards:[{f:"Do positive covenants run with the land?", b:"Generally no, at common law or in equity."},
+      {f:"What four conditions let a restrictive covenant run with the land in equity?", b:"It's genuinely negative; benefits a dominant tenement; intended to bind future owners; and the new owner had notice."},
+      {f:"What did Tulk v Moxhay decide?", b:"A restrictive covenant not to build bound a later purchaser who had notice of it, because it benefited neighbouring land."}],
+     problem:{scenario:"A subdivision deed restricts owners from building beyond two storeys, to preserve neighbourhood views. A later buyer, aware of the restriction at purchase, begins constructing a five-storey building.",
+       ask:"Advise the neighbouring owners on their remedies, applying Tulk v Moxhay."},
+     quiz:[{q:"Tulk v Moxhay is the origin case for:", options:["Easements by necessity","Restrictive covenants running with land in equity","Joint tenancy severance","Mortgagor's right of redemption"], a:1},
+      {q:"For a restrictive covenant to bind a later owner, that owner must have had:", options:["Paid full market value","Notice of the covenant","A written apology","Government approval"], a:1}]
+    },
+    {id:"mortgages", title:"Mortgages in Land Law",
+     concept:"A mortgage lets a borrower (mortgagor) use land as security for a loan from a lender (mortgagee); the borrower keeps using the land unless they default.",
+     law:[
+      "Types: legal mortgage (formal deed transfer), equitable mortgage (title deeds deposited or written agreement), sub-mortgage, and first vs subsequent mortgages (priority order).",
+      "Mortgagee's rights: possession (usually via court), foreclosure, sale, suing for shortfall, and a possessory lien over title documents.",
+      "Mortgagor's rights: right of redemption (pay off the debt before sale/foreclosure and reclaim the land free of the mortgage — a fundamental, fiercely protected right), possession, surplus from a forced sale, and rent accrued before foreclosure.",
+      "Under the Land Use Act, a mortgage over land held under a Certificate of Occupancy needs the Governor's approval/consent before it is valid."
+     ],
+     statute:"Land Use Act 1978 (Nigeria).",
+     cases:[{id:"akinyemi-adebayo", name:"Akinyemi v Adebayo", court:"—", year:"—",
+       facts:"Discussed a mortgagor's attempt to reclaim mortgaged land.",
+       issue:"How central is the right of redemption to mortgage law?",
+       decision:"The mortgagor's right to redeem the property was emphasised as central to mortgage law.",
+       ratio:"The equity of redemption is a fundamental, fiercely protected feature of mortgage law.",
+       obiter:"", principle:"No matter how powerful the lender, redemption before sale defeats the mortgage.",
+       examUse:"Cite for any question testing the mortgagor's right of redemption."}],
+     evidence:{principle:"A mortgagor may redeem mortgaged land by paying off the debt and arrears at any point before sale or foreclosure.",
+       chain:["Land Use Act 1978 — Governor's consent for mortgages","Right of redemption doctrine","Case: Akinyemi v Adebayo"]},
+     flashcards:[{f:"What is the mortgagor's 'golden right'?", b:"The right of redemption — paying off the debt plus arrears before foreclosure/sale to reclaim the land free of the mortgage."},
+      {f:"Why does a mortgage over a Certificate of Occupancy need Governor's consent?", b:"Because under the Land Use Act, all land vests in the Governor, so dealings in land — including mortgages — require approval."}],
+     problem:{scenario:"Mrs. Nkechi mortgages her Lekki property to First Bank for ₦10 million. She defaults, and the bank obtains a court order to sell the property for ₦15 million.",
+       ask:"Advise Mrs. Nkechi on her entitlement to any surplus, and on what she could have done before the sale to keep her land."},
+     quiz:[{q:"The mortgagor's right of redemption means:", options:["The lender can never sell the property","The borrower can reclaim the land by paying off the debt before sale/foreclosure","The borrower automatically owns the land after 5 years","The lender must forgive the debt after default"], a:1},
+      {q:"A mortgage over land held under a Certificate of Occupancy in Nigeria generally requires:", options:["No formalities","Governor's approval/consent","Approval of the National Assembly","Nothing beyond a private agreement"], a:1}]
+    }
+   ]
+ },
+ {
+   id:"trust", name:"Equity & Trusts", color:"#C79A2E", icon:"🔑",
+   blurb:"What happens when a trustee misbehaves — chasing trust money into the hands of third parties.",
+   topics:[
+    {id:"dishonest-assistance", title:"Dishonest (Knowing) Assistance",
+     concept:"Liability for a stranger who HELPS a trustee commit a breach of trust — even without receiving a kobo themselves, just holding the door open.",
+     law:[
+      "Barnes v Addy (Lord Selborne) originally required the trustee's breach to be fraudulent before a stranger-helper could be liable.",
+      "Royal Brunei Airlines v Tan (Lord Nicholls, Privy Council) reframed the test around a single question: DISHONESTY. Would an ordinary honest person, looking at what the helper actually knew (including deliberately avoided suspicions), think their behaviour was dishonest?",
+      "This overturned the old requirement that the trustee's own breach be fraudulent — an innocent trustee mistake can still found liability for a dishonest assister.",
+      "Agip v Jackson applied the Baden scale of knowledge (five categories, from actual knowledge to wilfully shutting one's eyes) as evidence bearing on dishonesty, rather than as a rigid separate test.",
+      "Millett J's view: the standard 'reasonable person' is paranoid and thorough in land deals, but relaxed in ordinary business — an agent is 'not expected to be unduly suspicious' and is only liable for failing to ask further questions where an honest, reasonable person would have realised the money was probably being misapplied."
+     ],
+     statute:"Equitable doctrine (no statute) — developed through Barnes v Addy, Royal Brunei Airlines v Tan, and Agip v Jackson.",
+     cases:[
+      {id:"royal-brunei-tan", name:"Royal Brunei Airlines Sdn Bhd v Tan", court:"Privy Council", year:"—",
+       facts:"A travel agency (BLT) held ticket money on trust for the airline, but its boss, Mr Tan, used the money for the agency's own business. The agency went bust, and the airline sued Tan personally.",
+       issue:"What is the test for a stranger's liability for assisting a breach of trust, and must the trustee's breach itself be fraudulent?",
+       decision:"The single test is dishonesty, judged against what the defendant actually knew (including deliberately avoided suspicions); the trustee's breach need not be fraudulent.",
+       ratio:"Dishonest assistance liability turns on the assister's own dishonesty, not on the trustee's state of mind.",
+       obiter:"", principle:"Helping a trustee dishonestly move trust property makes you personally liable, whether or not the trustee meant to steal.",
+       examUse:"THE landmark citation for the modern dishonest assistance test."},
+      {id:"agip-jackson", name:"Agip (Africa) Ltd v Jackson", court:"England", year:"—",
+       facts:"Considered how the Baden categories of knowledge bear on both dishonest assistance and knowing receipt.",
+       issue:"How should 'knowledge' be assessed for accessory liability?",
+       decision:"The Baden categories are useful as evidence of dishonesty (for assistance) or notice (for receipt), not as a rigid separate legal test.",
+       ratio:"Knowledge categories inform, but do not replace, the ultimate dishonesty/unconscionability inquiry.",
+       obiter:"", principle:"Categories of knowledge are a tool, not the whole test.",
+       examUse:"Cite alongside Royal Brunei Airlines v Tan when discussing the role of the Baden scale."}
+     ],
+     evidence:{principle:"A stranger who dishonestly helps a trustee breach trust is personally liable, even without receiving any property.",
+       chain:["Old rule: Barnes v Addy (required fraudulent breach)","Case: Royal Brunei Airlines v Tan (dishonesty test, overturns Barnes v Addy requirement)","Case: Agip v Jackson (Baden scale as evidence of dishonesty)"]},
+     flashcards:[{f:"What is the modern test for dishonest assistance?", b:"Whether an ordinary honest person, looking at what the defendant actually knew, would consider their conduct dishonest (Royal Brunei Airlines v Tan)."},
+      {f:"Must the trustee's own breach be fraudulent for a helper to be liable?", b:"No — Royal Brunei Airlines v Tan overturned that old requirement from Barnes v Addy."},
+      {f:"What is the Baden scale used for now?", b:"As evidence bearing on dishonesty (or notice), not as a separate rigid test — per Agip v Jackson."}],
+     problem:{scenario:"A solicitor processes a series of unusual transfers for a client-trustee without asking questions, despite red flags (round-tripping of large sums, no invoices, inconsistent instructions).",
+       ask:"Advise on whether the solicitor could be liable for dishonest assistance, applying the Royal Brunei Airlines v Tan test."},
+     quiz:[{q:"The modern test for dishonest assistance, from Royal Brunei Airlines v Tan, asks:", options:["Whether the trustee acted fraudulently","Whether an ordinary honest person would view the defendant's conduct as dishonest","Whether the defendant received any trust property","Whether a written contract existed"], a:1},
+      {q:"What did Royal Brunei Airlines v Tan overturn from Barnes v Addy?", options:["The need for a trust to exist at all","The requirement that the trustee's breach itself be fraudulent","The remedy of tracing","The rule against perpetuities"], a:1}]
+    },
+    {id:"knowing-receipt", title:"Knowing Receipt",
+     concept:"Liability for a stranger who actually RECEIVES trust property (or its traceable proceeds) for their own benefit, where it would be unconscionable for them to keep it.",
+     law:[
+      "Re Montagu's Settlement Trusts (Megarry V-C) — required real knowledge (Baden categories 1–3), not mere notice.",
+      "Agip v Jackson (Millett J) — held that mere notice (a lower bar) is enough, not full-blown knowledge.",
+      "A third, more radical view (Birks and Millett writing extra-judicially) argued Knowing Receipt should be strict liability, subject to two defences: bona fide purchase for value without notice, and change of position.",
+      "BCCI v Akindele replaced the old rigid knowledge categories with a single modern test: UNCONSCIONABILITY — would it be unconscionable, in all the circumstances, for the recipient to retain the benefit?"
+     ],
+     statute:"Equitable doctrine — Re Montagu, Agip v Jackson, and BCCI v Akindele.",
+     cases:[
+      {id:"re-montagu", name:"Re Montagu's Settlement Trusts", court:"England", year:"—",
+       facts:"Considered what level of awareness a recipient of trust property must have to be liable.",
+       issue:"What knowledge threshold applies to knowing receipt?",
+       decision:"Real knowledge (Baden categories 1–3) was required, not mere notice.",
+       ratio:"The older, stricter view: actual knowledge, not constructive notice, founds knowing receipt liability.",
+       obiter:"", principle:"You must really have known, not merely have had reason to suspect.",
+       examUse:"Cite as the older, stricter knowledge-based test, before BCCI v Akindele."},
+      {id:"bcci-akindele", name:"BCCI v Akindele", court:"England (Court of Appeal)", year:"—",
+       facts:"Concerned the correct modern test for a recipient's liability to account for trust property received.",
+       issue:"What is the correct test for knowing receipt liability?",
+       decision:"The court adopted a single test of unconscionability: would it be unconscionable for the recipient, given what they knew, to retain the benefit?",
+       ratio:"Unconscionability, assessed on all the circumstances, is now the governing test for knowing receipt, replacing the old rigid knowledge categories.",
+       obiter:"", principle:"Ask one question: would keeping this money be against conscience?",
+       examUse:"THE modern landmark citation for knowing receipt."}
+     ],
+     evidence:{principle:"A recipient of trust property must return it where it would be unconscionable for them to keep it.",
+       chain:["Old test: Re Montagu (actual knowledge required)","Alternative: Agip v Jackson (mere notice suffices)","Modern test: BCCI v Akindele (unconscionability)"]},
+     flashcards:[{f:"What is the modern test for knowing receipt?", b:"Unconscionability — whether it would be unconscionable, given what the recipient knew, for them to retain the benefit (BCCI v Akindele)."},
+      {f:"What two defences did Birks/Millett propose for a strict-liability approach to knowing receipt?", b:"Bona fide purchase for value without notice, and change of position."}],
+     problem:{scenario:"A businesswoman receives a large payment from a company director, later discovered to be misappropriated trust funds, and uses part of it to expand her business.",
+       ask:"Advise on her potential liability for knowing receipt, applying the BCCI v Akindele test."},
+     quiz:[{q:"BCCI v Akindele established which test for knowing receipt?", options:["Strict liability with no defences","Actual knowledge only (Baden 1–3)","Unconscionability, based on all the circumstances","Whether a written contract existed"], a:2},
+      {q:"Which case required 'real knowledge' rather than mere notice for knowing receipt?", options:["BCCI v Akindele","Re Montagu's Settlement Trusts","Royal Brunei Airlines v Tan","Foskett v McKeown"], a:1}]
+    },
+    {id:"tracing-foskett", title:"Tracing & Foskett v McKeown",
+     concept:"Tracing follows the VALUE of trust property as it changes form (cash → bank account → shares → insurance payout) so the beneficiary can claim what it has become. Foskett v McKeown is the landmark case on tracing into mixed funds.",
+     law:[
+      "'Following' chases the same asset as it moves from hand to hand; 'tracing' identifies a new asset that has taken the place of the old one.",
+      "Foskett v McKeown: a trustee (Murphy) paid some life-insurance premiums with his own money and some with stolen trust money. On his death, the insurer paid out to his named beneficiaries (his children). The trust's beneficiaries (investors whose money was stolen) claimed a proportionate share of the payout.",
+      "Majority reasoning: this is a PROPERTY claim, not an unjust-enrichment claim — the claimant succeeds by virtue of their own title, not by reversing enrichment, so there is no need to show the defendant was 'enriched'.",
+      "Mixing analogy: like money mixed in a bank account, once clean and stolen money both fund the same asset, the VALUE of that asset represents a proportionate mix, and each contributor gets a proportionate share.",
+      "The case was a rare 3–2 split at the House of Lords, showing how contested tracing into mixed assets can be."
+     ],
+     statute:"Equitable doctrine of tracing.",
+     cases:[{id:"foskett-mckeown", name:"Foskett v McKeown", court:"House of Lords", year:"—",
+       facts:"Trustee Murphy managed investors' money meant to be held on trust for a Portugal land deal, but used two of five life-insurance premiums (1989–1990) with stolen trust money. He died in 1991, and the insurer paid £1,000,580.04 to his named beneficiaries — his wife and children.",
+       issue:"Can beneficiaries of the stolen trust money trace into, and claim a proportionate share of, the life-insurance payout received by innocent volunteers?",
+       decision:"By a 3–2 majority, the investors succeeded — the trust's beneficiaries could trace into the mixed policy and claim a proportionate share of the payout.",
+       ratio:"Where trust money is mixed with other funds to acquire an asset, the beneficiary has a proportionate property interest in that asset's value, without needing to prove unjust enrichment.",
+       obiter:"The minority argued the children, as innocent volunteers, should keep the payout since the death benefit would have been the same regardless of the stolen premiums.",
+       principle:"Tracing is a property-based claim: you succeed by your own title to value, not by proving the recipient was enriched.",
+       examUse:"THE landmark citation for tracing into mixed funds, especially insurance payouts, and for the property-vs-unjust-enrichment distinction."}],
+     evidence:{principle:"A beneficiary can trace their proportionate share of value into a mixed asset, such as an insurance payout funded partly by trust money.",
+       chain:["Equitable doctrine of tracing","Following vs Tracing distinction","Case: Foskett v McKeown (mixed-fund/insurance tracing, 3–2 House of Lords)"]},
+     flashcards:[{f:"Following vs tracing — what's the difference?", b:"Following chases the SAME asset as it moves hand to hand; tracing identifies a NEW asset that has taken the place of the old one."},
+      {f:"What did Foskett v McKeown decide about mixed trust and personal funds?", b:"Where trust money is mixed with other money to acquire an asset, the beneficiary gets a proportionate property interest in that asset's value — a property claim, not an unjust enrichment claim."},
+      {f:"Was Foskett v McKeown a unanimous decision?", b:"No — a rare 3–2 split at the House of Lords."}],
+     problem:{scenario:"A trustee mixes ₦2m of trust money with ₦3m of his own money to buy shares worth ₦5m, which later rise in value to ₦8m.",
+       ask:"Advise the beneficiaries on their proportionate claim, applying the Foskett v McKeown mixing analogy."},
+     quiz:[{q:"Foskett v McKeown characterised the beneficiaries' claim as:", options:["An unjust enrichment claim","A property claim based on their own title","A claim in tort","A criminal restitution order"], a:1},
+      {q:"'Following' differs from 'tracing' in that following:", options:["Identifies a new substitute asset","Chases the very same asset as it changes hands","Only applies to money, never goods","Requires a court order to begin"], a:1}]
+    },
+    {id:"quistclose", title:"Quistclose Trusts",
+     concept:"A Quistclose trust arises when Person A lends or gives money to Person B for ONE SPECIFIC PURPOSE ONLY. If that purpose fails, the money never became B's own property — it is held on trust and must go back to A, ahead of B's other creditors.",
+     law:[
+      "Barclays Bank v Quistclose Investments established the trust: money advanced for a specific purpose (paying a dividend) that failed to be used for that purpose was held on trust for the lender, not available to the borrower's general creditors on insolvency.",
+      "Twinsectra v Yardley developed a 'single trust' theory of how the Quistclose trust operates as a matter of trust analysis.",
+      "The mechanism protects the lender: because the money never became the borrower's own property, it does not form part of the insolvent estate and the lender is not left competing pari passu with ordinary unsecured creditors."
+     ],
+     statute:"Equitable doctrine of resulting trusts (a Quistclose trust is a species of resulting trust).",
+     cases:[{id:"barclays-quistclose", name:"Barclays Bank Ltd v Quistclose Investments Ltd", court:"House of Lords", year:"—",
+       facts:"Quistclose lent money to a company specifically to pay a dividend to shareholders. Before the dividend was paid, the company went into liquidation.",
+       issue:"Does the lender have a claim to the money ahead of the company's general creditors, since the specific purpose failed?",
+       decision:"Yes — the money was held on trust for the specific purpose, and since that purpose failed, it resulted back to the lender rather than falling into the general assets available to creditors.",
+       ratio:"Money advanced for a specific purpose that fails is held on a resulting trust for the lender, protected from the borrower's insolvency.",
+       obiter:"", principle:"Purpose-restricted money that never gets used for its purpose was never really the borrower's.",
+       examUse:"THE foundational citation for any purpose-trust/insolvency problem question."}],
+     evidence:{principle:"Money advanced for a specific purpose that fails is held on trust for the lender, ahead of the borrower's general creditors.",
+       chain:["Doctrine of resulting trusts","Case: Barclays Bank v Quistclose Investments Ltd (founding case)","Twinsectra v Yardley (single trust theory)"]},
+     flashcards:[{f:"What is a Quistclose trust?", b:"A trust arising where money is advanced for one specific purpose only; if that purpose fails, the money is held on trust and must return to the lender, ahead of general creditors."},
+      {f:"Why does a Quistclose trust protect the lender in insolvency?", b:"Because the money never became the borrower's own property, it isn't part of the insolvent estate, so the lender skips the pari passu queue of ordinary creditors."}],
+     problem:{scenario:"A parent company advances funds to a subsidiary strictly earmarked 'for payment of staff salaries only'. The subsidiary is placed into liquidation before the salaries are paid, and the funds remain untouched in a separate account.",
+       ask:"Advise the parent company on whether it can recover the funds ahead of the subsidiary's other creditors, applying Barclays Bank v Quistclose Investments Ltd."},
+     quiz:[{q:"A Quistclose trust is a species of:", options:["Express trust","Resulting trust","Charitable trust","Bare trust"], a:1},
+      {q:"In Barclays Bank v Quistclose, why did the lender succeed against the liquidator?", options:["The money was never lent, only gifted","The specific purpose failed, so the money resulted back on trust rather than becoming the company's general asset","The company had no other creditors","The lender registered a legal mortgage"], a:1}]
+    },
+    {id:"environmental-oil-gas", title:"Oil & Gas / Environmental Law (Nigerian Focus)",
+     concept:"Nigerian environmental and oil & gas law regulates refining and licensing, pollution liability, and the constitutional fight over standing (locus standi) to sue for environmental harm.",
+     law:[
+      "Licensing runs through NMDPRA in three stages: LTE (Licence to Establish) → ATC (Authority to Construct) → LTO (Licence to Operate).",
+      "Compensation routes: PIA 2021 (Host Community Development Trust), Oil Pipelines Act, NOSDRA Act, plus common law torts — negligence, nuisance, strict liability under Rylands v Fletcher, and trespass to land.",
+      "Locus standi arc: Adesanya v President of Nigeria required claimants to show their OWN personal legal rights were affected; Fawehinmi v Akilu slightly softened this; Centre for Oil Pollution Watch v NNPC held an NGO need not prove personal injury if environmental protection is its genuine objective.",
+      "Centre for Oil Pollution Watch v NNPC also recognised, for the first time, that the constitutional right to life (S.33) includes a right to a clean, healthy environment, and confirmed Article 24 of the African Charter is enforceable in Nigeria.",
+      "Ongoing inconsistency: Barr. Opara v SPDC and AFAN v Addax held pollution does not by itself violate rights to life/dignity, while Gbemre v Shell held gas flaring did violate those rights and declared the enabling laws unconstitutional.",
+      "The Polluter Pays Principle underlies PIA 2021, NOSDRA Act 2006 and the EIA Act, but claimants still must prove pollution, operational control, causation and quantifiable loss (SPDC v Farah; SPDC v Tiebo VII).",
+      "Parent company liability: Vedanta Resources v Lungowe and Okpabi v Royal Dutch Shell (UK Supreme Court) confirmed a parent company can be liable for a subsidiary's environmental damage abroad if it exercised meaningful control."
+     ],
+     statute:"Petroleum Industry Act 2021; NOSDRA Act 2006; EIA Act; 1999 Constitution (Sections 20, 33, 34).",
+     cases:[
+      {id:"copw-nnpc", name:"Centre for Oil Pollution Watch v NNPC", court:"Supreme Court of Nigeria", year:"—",
+       facts:"An environmental NGO sued NNPC over pollution without alleging personal injury or land ownership.",
+       issue:"Does an environmental NGO need to prove personal injury or land ownership to have standing to sue over pollution?",
+       decision:"No — it just needs environmental protection as its genuine objective and must not be a 'meddlesome busybody'.",
+       ratio:"Standing in environmental litigation can rest on genuine public-interest purpose, not personal injury.",
+       obiter:"The Court also recognised the right to life (S.33) includes a right to a clean, healthy environment, and confirmed Article 24 of the African Charter is enforceable in Nigeria.",
+       principle:"Environmental NGOs can sue on behalf of the environment itself, not only injured individuals.",
+       examUse:"THE turning-point citation for locus standi in Nigerian environmental litigation."},
+      {id:"gbemre-shell", name:"Gbemre v Shell", court:"Federal High Court", year:"—",
+       facts:"A gas-flaring case challenging the legality of continued flaring in the Niger Delta.",
+       issue:"Does gas flaring violate constitutional rights to life and dignity?",
+       decision:"Yes — the Federal High Court held gas flaring violated rights to life and dignity, and declared laws permitting flaring unconstitutional.",
+       ratio:"Environmental harm can amount to a violation of constitutional rights to life and dignity.",
+       obiter:"", principle:"Pollution can be reframed as a human-rights violation, not just an environmental complaint.",
+       examUse:"Cite for the constitutional-rights route into environmental enforcement, contrasted with Barr. Opara v SPDC."}
+     ],
+     evidence:{principle:"Nigerian courts increasingly treat severe environmental harm as a constitutional rights issue, and have relaxed standing rules for genuine environmental litigants.",
+       chain:["1999 Constitution, S.33 (right to life)","Case: Centre for Oil Pollution Watch v NNPC (standing + right to environment)","Case: Gbemre v Shell (flaring as rights violation)"]},
+     flashcards:[{f:"What did Centre for Oil Pollution Watch v NNPC decide about standing?", b:"An environmental NGO doesn't need to prove personal injury to sue over pollution — genuine environmental purpose is enough."},
+      {f:"What are the three NMDPRA licensing stages for refineries?", b:"Licence to Establish (LTE), Authority to Construct (ATC), and Licence to Operate (LTO)."},
+      {f:"What is the Polluter Pays Principle?", b:"Whoever causes pollution should bear the cost of preventing or fixing it, rather than passing that cost onto the public."}],
+     problem:{scenario:"An oil spill from a pipeline damages farmland in the Niger Delta. The affected community wants to sue both the local subsidiary and its foreign parent company.",
+       ask:"Advise the community on possible causes of action, standing considerations, and the prospects of holding the parent company liable, citing relevant authority."},
+     quiz:[{q:"Centre for Oil Pollution Watch v NNPC changed Nigerian law by:", options:["Abolishing all standing requirements","Allowing environmental NGOs to sue without proving personal injury","Banning oil exploration entirely","Removing the Governor's role in land matters"], a:1},
+      {q:"Under Vedanta v Lungowe and Okpabi v Royal Dutch Shell, a parent company can be liable for a subsidiary's environmental damage if:", options:["It merely owns shares in the subsidiary","It exercised meaningful control or policy oversight","The subsidiary is Nigerian-registered","A criminal conviction has occurred"], a:1}]
+    }
+   ]
+ }
+];
+
+// Build case index for search/lookup
+COURSES.forEach(c=>c.topics.forEach(t=>t.cases.forEach(cs=>{CASES_INDEX[cs.id]={course:c.id,topic:t.id};})));
+
+const CAREERS = [
+ {id:"corporate", name:"Corporate Law", ic:"🏢",
+  what:"Advising companies on formation, governance, mergers, acquisitions, and day-to-day compliance.",
+  do:"Draft and review agreements, run due diligence on transactions, advise boards on governance and regulatory compliance.",
+  who:"Corporate law firms, in-house legal teams, banks, regulators like the Corporate Affairs Commission.",
+  where:"Lagos, Abuja, and other commercial hubs — most corporate work is concentrated in major business centres.",
+  skills:"Attention to detail, contract drafting, negotiation, commercial awareness.",
+  why:"High demand in Nigeria's growing corporate sector, exposure to major deals and business strategy.",
+  pros:"Strong career progression, exposure to high-value transactions, transferable skills.",
+  cons:"Long hours during live deals, heavy documentation work.",
+  subjects:"Company Law, Commercial Law, Law of Contract.",
+  path:"NYSC → associate at a commercial firm or in-house legal team → senior associate → partner or general counsel.",
+  earnings:"Estimated range: entry-level associates in leading Lagos commercial firms often start in the low-to-mid six figures (₦) monthly, rising substantially with seniority and firm tier. Actual pay varies widely by firm, experience, and specialisation — treat this as a rough estimate only, not a guarantee.",
+  enjoy:"Students who like structure, precision, and business strategy."},
+ {id:"litigation", name:"Litigation", ic:"⚖️",
+  what:"Representing clients in court disputes — civil and criminal — from filing to judgment.",
+  do:"Draft pleadings, conduct cross-examinations, argue motions and appeals, negotiate settlements.",
+  who:"Litigation-focused law firms, chambers, government legal departments, NGOs.",
+  where:"Courts nationwide — High Courts, Courts of Appeal, and the Supreme Court, plus tribunals.",
+  skills:"Advocacy, legal research, quick thinking, resilience under pressure.",
+  why:"Direct courtroom experience and the chance to shape legal precedent.",
+  pros:"Intellectually engaging, high visibility, courtroom skill is highly transferable.",
+  cons:"Court delays, unpredictable schedules, can be adversarial and stressful.",
+  subjects:"Civil Procedure, Evidence Law, Criminal Law, Company Law.",
+  path:"NYSC → junior counsel in a litigation chamber → build a case portfolio → senior counsel/SAN track.",
+  earnings:"Estimated range: junior litigation associates typically earn modestly at entry level, with income growing significantly as counsel build an independent practice or make partner — actual earnings vary hugely by chamber size, reputation, and caseload.",
+  enjoy:"Students who enjoy arguing, thinking on their feet, and courtroom work."},
+ {id:"oil-gas", name:"Oil & Gas Law", ic:"🛢️",
+  what:"Advising on upstream, midstream and downstream petroleum operations, licensing, and regulatory compliance.",
+  do:"Draft production-sharing contracts, advise on NUPRC/NMDPRA licensing, handle regulatory and environmental compliance.",
+  who:"International and indigenous oil majors, regulators (NUPRC, NMDPRA), energy-focused law firms.",
+  where:"Lagos, Port Harcourt, Abuja, and the Niger Delta region.",
+  skills:"Regulatory knowledge, negotiation, cross-border contract drafting, environmental law awareness.",
+  why:"Central to Nigeria's economy, with complex, high-value work.",
+  pros:"High-value transactions, strong specialisation demand.",
+  cons:"Politically and environmentally sensitive, regulatory complexity, reputational exposure.",
+  subjects:"Oil & Gas Law, Environmental Law, Commercial Law, Company Law.",
+  path:"NYSC → energy law practice group at a commercial firm or in-house at an operator → specialise in upstream/midstream/downstream.",
+  earnings:"Estimated range: this is one of the higher-paying specialisations in Nigerian practice, particularly in-house with international operators, though exact figures vary widely with employer and experience.",
+  enjoy:"Students who like technical regulatory work and complex financial/commercial matters."},
+ {id:"ip-tech", name:"Intellectual Property & Technology Law", ic:"💡",
+  what:"Protecting and advising on patents, trademarks, copyright, data protection, and technology contracts.",
+  do:"Register and enforce IP rights, advise startups and tech companies on compliance, draft licensing and data-protection agreements.",
+  who:"IP boutiques, tech companies, startups, the Nigerian Copyright Commission, Trademarks Registry.",
+  where:"Lagos' growing tech ecosystem, and increasingly remote/virtual work with international clients.",
+  skills:"Attention to detail, understanding of technology, drafting, negotiation.",
+  why:"Fast-growing field as Nigeria's tech and startup sector expands.",
+  pros:"Cutting-edge, intellectually stimulating, growing demand.",
+  cons:"Still a developing regulatory area in Nigeria, enforcement can be slow.",
+  subjects:"Intellectual Property Law, Commercial Law, Data Protection.",
+  path:"NYSC → IP/tech practice group → build sector expertise (fintech, media, SaaS) → specialise or go in-house at a tech company.",
+  earnings:"Estimated range: comparable to general commercial practice at entry level, with strong upside for specialists serving international tech clients — figures vary by client base and firm.",
+  enjoy:"Students who enjoy technology, writing, and precise drafting."},
+ {id:"human-rights", name:"Human Rights Law", ic:"🕊️",
+  what:"Advocating for the protection and enforcement of fundamental human rights, domestically and internationally.",
+  do:"Litigate rights violations, engage in policy advocacy, work with international human rights bodies.",
+  who:"NGOs, human rights commissions, international organisations, public interest law firms.",
+  where:"Nationwide, with some roles based internationally (African Union, UN bodies).",
+  skills:"Advocacy, research, empathy, comfort with public interest and policy work.",
+  why:"Direct social impact and engagement with constitutional and international law.",
+  pros:"Meaningful, impact-driven work.",
+  cons:"Often lower pay than commercial practice, funding can be uncertain.",
+  subjects:"Constitutional Law, Public International Law, Jurisprudence.",
+  path:"NYSC → work with a human rights NGO or commission → build litigation/advocacy portfolio → senior advocacy or academic roles.",
+  earnings:"Estimated range: generally more modest than commercial practice, though senior roles at established international organisations can be well compensated — figures vary greatly by organisation and funding.",
+  enjoy:"Students who want to help people directly and care about justice and policy."},
+ {id:"banking-finance", name:"Banking & Finance Law", ic:"🏦",
+  what:"Advising banks, borrowers and financial institutions on lending, securities, capital markets, and regulatory compliance.",
+  do:"Draft loan and security documents, advise on regulatory compliance (CBN, SEC), structure financial transactions.",
+  who:"Commercial banks, law firms with finance practice groups, the Central Bank of Nigeria, SEC.",
+  where:"Lagos and Abuja, the centres of Nigeria's financial industry.",
+  skills:"Numeracy, attention to detail, understanding of financial products, regulatory knowledge.",
+  why:"Consistently strong demand tied to the financial sector's size and complexity.",
+  pros:"Stable demand, exposure to sophisticated financial transactions.",
+  cons:"Highly technical, deadline-driven, regulatory complexity.",
+  subjects:"Banking Law, Company Law, Commercial Law.",
+  path:"NYSC → finance practice group at a commercial firm or in-house at a bank → specialise in lending, capital markets, or securities.",
+  earnings:"Estimated range: among the more competitively paid specialisations, particularly in-house at major banks — actual figures vary by institution and seniority.",
+  enjoy:"Students who enjoy complex financial matters and corporate environments."}
+];
+
+const LAW_FIRMS_DEMO = [
+ {name:"Sample Commercial Chambers", website:"Official email not publicly listed.", location:"Lagos (sample entry)", areas:"Corporate, Commercial, Dispute Resolution",
+  note:"This is a placeholder entry for demonstrating the Law Firm Directory layout. Replace with verified firm data from official sources before publishing."},
+ {name:"Sample Energy & Infrastructure Practice", website:"Official email not publicly listed.", location:"Lagos / Port Harcourt (sample entry)", areas:"Oil & Gas, Energy, Project Finance",
+  note:"Placeholder entry — verify against the firm's official website before use."},
+ {name:"Sample Litigation & Arbitration Group", website:"Official email not publicly listed.", location:"Abuja (sample entry)", areas:"Litigation, Arbitration, Constitutional Law",
+  note:"Placeholder entry — verify against the firm's official website before use."}
+];
+
+const INTERNSHIPS_DEMO = [
+ {org:"Sample Commercial Law Firm", role:"Legal Intern", location:"Lagos (sample)", mode:"Physical", status:"open", level:"400 Level and above", area:"Corporate/Commercial", deadline:"Sample date", duration:"3 months", paid:"Not stated", source:"Illustrative entry — replace with a verified listing"},
+ {org:"Sample Legal Research Fellowship", role:"Legal Research Fellow", location:"Remote", mode:"Virtual", status:"soon", level:"Any level", area:"Legal Research/Writing", deadline:"Sample date", duration:"6 weeks", paid:"Unpaid", source:"Illustrative entry — replace with a verified listing"},
+ {org:"Sample Human Rights NGO", role:"Legal Volunteer", location:"Abuja (sample)", mode:"Hybrid", status:"closed", level:"300 Level and above", area:"Human Rights", deadline:"Sample date", duration:"2 months", paid:"Unpaid", source:"Illustrative entry — replace with a verified listing"}
+];
+
+const NEWS_DEMO = [
+ {headline:"Sample: Court delivers ruling in a closely-watched commercial dispute", date:"Sample date", what:"Placeholder summary — replace with a verified, sourced news item.", why:"Illustrates how the Nigerian Law Today feed displays real stories once connected to a verified news source.", area:"Commercial Law", source:"Illustrative entry"},
+ {headline:"Sample: Regulatory update affecting a sector of practice", date:"Sample date", what:"Placeholder summary — replace with a verified, sourced news item.", why:"Shows the layout law students would see for a real regulatory development.", area:"Regulatory", source:"Illustrative entry"}
+];
+
+/* ============================= SUPABASE (real accounts + database) =============================
+   Fill in your own project's values below (Supabase dashboard → Project Settings → API).
+   Until you do, SUPABASE_READY stays false and LawPhaser automatically falls back to the old
+   local/in-memory-only mode — nothing breaks, registration just won't persist yet. */
+const SUPABASE_CONFIG = {
+  url: "https://yjnrtjhheaylavysnjej.supabase.co",
+  anonKey: "sb_publishable_Sn8f_g16Os1ivc8XojUU7A_MZWpJtVX"
+};
+const SUPABASE_READY = !SUPABASE_CONFIG.url.includes("YOUR-PROJECT") && !SUPABASE_CONFIG.anonKey.includes("YOUR-PUBLIC-ANON-KEY") && !!window.supabase;
+const sb = SUPABASE_READY ? window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey) : null;
+
+/* ============================= STATE ============================= */
+let state = {
+  route:"#/",
+  profile:null,
+  authMode:"signup", // "signup" | "signin"
+  authError:"",
+  authBusy:false,
+  progress:{ topicsCompleted:{}, quizScores:{}, flashMastered:{}, problemsAttempted:{}, examScores:[], careersExplored:{}, internshipsSaved:{}, firmsSaved:{}, streak:1 },
+  favMaxims:{},
+  notes:[],
+  flashIndex:0, flashFlipped:false, flashDeckKey:null, flashKnown:{},
+  quizState:null,
+  examState:null,
+  irac:{}
+};
+
+/* ---- DB read/write helpers. Every one is a no-op if Supabase isn't configured, so the rest
+   of the app behaves exactly as it did in local/demo mode until you plug in real credentials. ---- */
+async function loadProfileFromDB(){
+  if(!sb) return;
+  const { data, error } = await sb.from('profiles').select('*').single();
+  if(!error && data){
+    state.profile = { name:data.name||"", uni:data.university||"", level:data.level||"400 Level", faculty:data.faculty||"", email:data.email||"", is_admin: !!data.is_admin };
+  }
+}
+let adminTopicsMerged = false;
+async function loadAdminTopics(){
+  if(!sb) return;
+  const { data, error } = await sb.from('admin_topics').select('*').order('created_at',{ascending:true});
+  if(error || !data) return;
+  // remove any previously-merged admin topics before re-merging (so refresh doesn't duplicate)
+  COURSES.forEach(c=>{ c.topics = c.topics.filter(t=>!t.__admin); });
+  data.forEach(row=>{
+    const c = COURSES.find(x=>x.id===row.course_id);
+    if(!c) return;
+    const cases = (row.cases||[]).map((cs,idx)=>({ ...cs, id: row.id+'-case-'+idx }));
+    const topic = {
+      id: row.id, title: row.title, __admin:true,
+      concept: row.concept||"", law: row.law||[], statute: row.statute||"",
+      cases,
+      evidence: { principle: row.concept||row.title, chain: [row.statute, ...cases.map(cs=>('Case: '+cs.name))].filter(Boolean) },
+      flashcards: row.flashcards||[],
+      problem: { scenario: row.problem_scenario||"No problem question added for this topic yet.", ask: row.problem_ask||"Check back soon." },
+      quiz: (row.quiz||[]).map(q=>({ q:q.q, options:q.options, a:q.a })),
+      video: row.video_url? { url: row.video_url, title: row.video_title||row.title } : null
+    };
+    c.topics.push(topic);
+    cases.forEach(cs=>{ CASES_INDEX[cs.id] = {course:c.id, topic:topic.id}; });
+  });
+}
+async function loadProgressFromDB(){
+  if(!sb) return;
+  const { data, error } = await sb.from('progress').select('data').single();
+  if(!error && data && data.data && Object.keys(data.data).length){ state.progress = {...state.progress, ...data.data}; }
+}
+async function loadUserContentFromDB(){
+  if(!sb) return;
+  const { data, error } = await sb.from('user_content').select('data').single();
+  if(!error && data && data.data){
+    const d = data.data;
+    if(d.notes) state.notes = d.notes;
+    if(d.favMaxims) state.favMaxims = d.favMaxims;
+    if(d.irac) state.irac = d.irac;
+    if(d.flashKnown) state.flashKnown = d.flashKnown;
+  }
+}
+let persistTimer = null;
+function persistState(){
+  if(!sb || !state.profile) return;
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(async ()=>{
+    try{
+      const { data:{ user } } = await sb.auth.getUser();
+      if(!user) return;
+      await sb.from('progress').update({ data: state.progress, updated_at: new Date().toISOString() }).eq('user_id', user.id);
+      await sb.from('user_content').update({ data: { notes: state.notes, favMaxims: state.favMaxims, irac: state.irac, flashKnown: state.flashKnown }, updated_at: new Date().toISOString() }).eq('user_id', user.id);
+    }catch(e){ console.error("LawPhaser sync failed:", e); }
+  }, 700);
+}
+async function signOutUser(){
+  if(sb){ await sb.auth.signOut(); }
+  state.profile = null;
+  state.progress = { topicsCompleted:{}, quizScores:{}, flashMastered:{}, problemsAttempted:{}, examScores:[], careersExplored:{}, internshipsSaved:{}, firmsSaved:{}, streak:1 };
+  state.notes = []; state.favMaxims = {}; state.irac = {}; state.flashKnown = {};
+  nav("#/");
+}
+
+function todaySeed(){
+  const d = new Date();
+  return d.getFullYear()*372 + (d.getMonth()+1)*31 + d.getDate();
+}
+function pick(arr){ return arr[todaySeed() % arr.length]; }
+function pickCaseOfDay(){
+  const all=[];
+  COURSES.forEach(c=>c.topics.forEach(t=>t.cases.forEach(cs=>all.push({...cs,course:c.id,topic:t.id,courseName:c.name}))));
+  return all.length? all[todaySeed()%all.length] : null;
+}
+function pickWordOfDay(){
+  const words=[
+    {w:"Estoppel", d:"A rule stopping a person from denying a fact they earlier led someone else to rely on.", area:"Evidence Law", trick:"You can't talk from both sides of your mouth."},
+    {w:"Fiduciary", d:"Someone who owes another a duty of loyalty and good faith — trusted with your interests, not allowed to self-deal.", area:"Equity & Trusts", trick:"Trust me, but I'm legally bound not to betray you."},
+    {w:"Easement", d:"A right to use someone else's land in a specific way, without owning any part of it.", area:"Land Law", trick:"Use it, don't own it."},
+    {w:"Res judicata", d:"Once a court has finally decided a matter, it can't be relitigated between the same parties.", area:"Evidence Law", trick:"Case closed, no rematch."},
+    {w:"Unconscionable", d:"So unfair, given all the circumstances, that the law will not allow it to stand.", area:"Equity & Trusts", trick:"Against conscience, against the law."}
+  ];
+  return pick(words);
+}
+function dailyReminder(){
+  const r=[
+    "Do not merely state the law. Apply it to the facts.",
+    "Always identify the issue before discussing the rule.",
+    "Know your cases. Understand your cases. Don't just memorise names.",
+    "A legal argument is stronger when you support it with authority.",
+    "In problem questions, structure beats memory — IRAC first, detail second."
+  ];
+  return pick(r);
+}
+
+function findTopic(courseId, topicId){
+  const c = COURSES.find(x=>x.id===courseId);
+  if(!c) return null;
+  const t = c.topics.find(x=>x.id===topicId);
+  return t? {course:c, topic:t} : null;
+}
+function findCase(caseId){
+  const loc = CASES_INDEX[caseId];
+  if(!loc) return null;
+  const {course,topic} = findTopic(loc.course, loc.topic);
+  const cs = topic.cases.find(x=>x.id===caseId);
+  return {course, topic, cs};
+}
+function allTopicsFlat(){
+  const arr=[];
+  COURSES.forEach(c=>c.topics.forEach(t=>arr.push({course:c,topic:t})));
+  return arr;
+}
+function totalTopics(){ return allTopicsFlat().length; }
+function completedCount(){ return Object.keys(state.progress.topicsCompleted).length; }
+
+/* ============================= ROUTER ============================= */
+window.addEventListener("hashchange", ()=>{ state.route = location.hash || "#/"; render(); window.scrollTo(0,0); });
+
+function nav(route){ location.hash = route; }
+
+/* ============================= RENDER ============================= */
+function esc(s){ return (s||"").toString(); }
+
+function render(){
+  const app = document.getElementById("app");
+  const route = state.route;
+  let body = "";
+
+  if(route === "#/" || route === ""){ body = viewLanding(); }
+  else if(route === "#/onboard"){ body = viewOnboard(); }
+  else if(route === "#/signin"){ body = viewSignIn(); }
+  else if(!state.profile && route !== "#/"){ body = viewOnboard(); }
+  else if(route === "#/dashboard"){ body = viewDashboard(); }
+  else if(route === "#/toc"){ body = viewTOC(); }
+  else if(route.startsWith("#/course/")){ body = viewCourse(route.split("/")[2]); }
+  else if(route.startsWith("#/topic/")){ const p=route.split("/"); body = viewTopic(p[2],p[3], p[4]||"concept"); }
+  else if(route === "#/maxims"){ body = viewMaxims(); }
+  else if(route === "#/careers"){ body = viewCareers(); }
+  else if(route.startsWith("#/career/")){ body = viewCareerDetail(route.split("/")[2]); }
+  else if(route === "#/careerquiz"){ body = viewCareerQuiz(); }
+  else if(route === "#/firms"){ body = viewFirms(); }
+  else if(route === "#/internships"){ body = viewInternships(); }
+  else if(route === "#/news"){ body = viewNews(); }
+  else if(route === "#/search"){ body = viewSearch(); }
+  else if(route === "#/profile"){ body = viewProfile(); }
+  else if(route === "#/exam"){ body = viewExam(); }
+  else if(route === "#/notes"){ body = viewNotes(); }
+  else if(route === "#/admin"){
+    body = viewAdmin();
+    if(state.profile && state.profile.is_admin && state.adminTab==='users' && !state.adminUsersLoaded && !state.adminUsersLoading){ loadAdminUsers(); }
+  }
+  else { body = viewLanding(); }
+
+  app.innerHTML = topbarHTML() + `<main>${body}</main>` + footerHTML() + mobileNavHTML() + installStripHTML();
+  wireGlobalEvents();
+}
+
+function topbarHTML(){
+  if(state.route === "#/" && !state.profile){
+    return `<div class="topbar"><div class="topbar-inner">
+      <div class="brand" onclick="nav('#/')"><span class="mark">⚖</span>LawPhaser</div>
+      <div style="flex:1"></div>
+      <button class="pill-btn ghost" onclick="nav('#/signin')">Sign in</button>
+      <button class="pill-btn" onclick="nav('#/onboard')">Get started</button>
+    </div></div>`;
+  }
+  const items = [
+    ["#/dashboard","Home"],["#/toc","Learn"],["#/maxims","Latin"],
+    ["#/careers","Careers"],["#/internships","Opportunities"],["#/firms","Law Firms"],
+    ["#/news","Nigerian Law Today"],["#/profile","Profile"]
+  ];
+  if(state.profile && state.profile.is_admin){ items.push(["#/admin","⚙ Admin"]); }
+  return `<div class="topbar"><div class="topbar-inner">
+    <div class="brand" onclick="nav('#/dashboard')"><span class="mark">⚖</span>LawPhaser</div>
+    <div class="nav-desktop">
+      ${items.map(([r,l])=>`<button class="${state.route.startsWith(r)?'active':''}" onclick="nav('${r}')">${l}</button>`).join("")}
+    </div>
+    <div class="top-actions">
+      <div class="searchbox"><span>🔎</span><input id="globalSearch" placeholder="Search LawPhaser…" onkeydown="if(event.key==='Enter')doSearch(this.value)"></div>
+      <div class="avatar-chip" title="${state.profile?esc(state.profile.name):''}" onclick="nav('#/profile')">${state.profile? state.profile.name.trim().charAt(0).toUpperCase() : '?'}</div>
+    </div>
+  </div></div>`;
+}
+
+function mobileNavHTML(){
+  if(!state.profile) return "";
+  const items = [
+    ["#/dashboard","🏠","Home"],["#/toc","📚","Learn"],["#/exam","📝","Study"],
+    ["#/internships","💼","Opps"],["#/profile","👤","More"]
+  ];
+  return `<div class="mobile-nav"><div class="mobile-nav-inner">
+    ${items.map(([r,i,l])=>`<button class="${state.route.startsWith(r)?'active':''}" onclick="nav('${r}')"><span class="icon">${i}</span>${l}</button>`).join("")}
+  </div></div>`;
+}
+
+function footerHTML(){
+  return `<footer><div class="wrap">
+    <div>LawPhaser — Law school, but easier.</div>
+    <div>Built as a first prototype for Nigerian law students. Add your own course materials to grow the library.</div>
+  </div></footer>`;
+}
+
+function installStripHTML(){
+  return `<div class="install-strip hidden" id="installStrip">
+    <span>📲 Add LawPhaser to your home screen</span>
+    <button class="pill-btn" onclick="tryInstall()">Install</button>
+    <button class="pill-btn ghost" onclick="document.getElementById('installStrip').classList.add('hidden')" style="border-color:rgba(255,255,255,0.3)">✕</button>
+  </div>`;
+}
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{ e.preventDefault(); deferredInstallPrompt=e; const s=document.getElementById('installStrip'); if(s) s.classList.remove('hidden'); });
+function tryInstall(){
+  if(deferredInstallPrompt){ deferredInstallPrompt.prompt(); }
+  else { alert("LawPhaser is built as a Progressive Web App. On your phone's browser menu, choose 'Add to Home Screen' to install it like an app."); }
+}
+
+/* ---------------- LANDING ---------------- */
+function viewLanding(){
+  return `
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">For Nigerian law students</div>
+      <h1>LAWPHASER</h1>
+      <div class="tagline">Law school, but easier.</div>
+      <p style="color:#C7C2AC;max-width:52ch;margin-top:18px;font-size:1.02rem;">Your smarter companion through law school and beyond — learn topics with real cases and statutes, see the evidence behind every principle, test yourself, and figure out where your law degree can take you.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" onclick="nav('#/onboard')">Start Learning</button>
+        <button class="btn btn-outline" onclick="nav('#/onboard')">Explore Careers</button>
+        <button class="btn btn-outline" onclick="nav('#/onboard')">Find Internships</button>
+        <button class="btn btn-outline" onclick="nav('#/onboard')">Today's Nigerian Law</button>
+        <button class="btn btn-outline" onclick="nav('#/onboard')">Explore Law Firms</button>
+      </div>
+      <div class="hero-strip">
+        <div><div class="num">${totalTopics()}</div><div class="lbl">Topics loaded</div></div>
+        <div><div class="num">${LATIN.length}</div><div class="lbl">Latin maxims</div></div>
+        <div><div class="num">${CAREERS.length}</div><div class="lbl">Career paths</div></div>
+        <div><div class="num">3</div><div class="lbl">Courses live</div></div>
+        <div><div class="num">100%</div><div class="lbl">Evidence-backed</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div><div class="kicker">Everything in one place</div><h2>Learning → Understanding → Evidence → Cases → Practice → Testing → Career</h2></div>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="ic">📖</div><h3>Course Library</h3><p>Evidence Law, Land Law and Equity & Trusts, broken into topics with concept, law, statute and cases.</p><div class="go">Browse courses →</div></div>
+        <div class="feature-card"><div class="ic">🔍</div><h3>Evidence Panel</h3><p>Click "Evidence" on any legal statement to see exactly which statute, section and case backs it up.</p><div class="go">See how it works →</div></div>
+        <div class="feature-card"><div class="ic">🧠</div><h3>Flashcards</h3><p>Flip through cases, maxims and principles. Mark what you know, review what you don't.</p><div class="go">Try a deck →</div></div>
+        <div class="feature-card"><div class="ic">📝</div><h3>Problem Questions & IRAC</h3><p>Realistic scenarios for every topic, with an Issue–Rule–Application–Conclusion answer mode.</p><div class="go">Practise IRAC →</div></div>
+        <div class="feature-card"><div class="ic">🎓</div><h3>Career Explorer</h3><p>What can you actually do with a law degree? Explore practice areas and take the career quiz.</p><div class="go">Find your area →</div></div>
+        <div class="feature-card"><div class="ic">💼</div><h3>Opportunities</h3><p>An internship hub and law firm directory — built so verified listings can be added without rebuilding the app.</p><div class="go">See the hub →</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="landing-band">
+    <div class="wrap">
+      <div><h2>Every day: a reminder, a case, a word.</h2><p>Today's Legal Reminder, Case of the Day and Legal Word of the Day — built to keep one small idea sticking, every single day you open LawPhaser.</p></div>
+      <button class="btn btn-primary" onclick="nav('#/onboard')">See today's brief</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="wrap">
+      <div class="section-head"><div><div class="kicker">Not just notes</div><h2>"I am studying law, and LawPhaser is helping me figure it all out."</h2></div></div>
+      <p class="section-sub">LawPhaser is built from real course material — dying declarations, estoppel, easements, tracing, Quistclose trusts and more — transformed into a guided structure instead of a wall of text. Create your profile to begin.</p>
+      <button class="btn btn-emerald" onclick="nav('#/onboard')">Create your profile</button>
+    </div>
+  </div>
+  `;
+}
+
+/* ---------------- ONBOARD (sign-up + profile) ---------------- */
+function configBannerHTML(){
+  if(SUPABASE_READY) return "";
+  return `<div class="demo-banner">⚠️ Supabase isn't configured yet (SUPABASE_CONFIG at the top of the script still has placeholder values), so accounts created here only live in this browser tab and won't persist or appear in any database. Add your Project URL + anon key to enable real, persistent registration.</div>`;
+}
+function viewOnboard(){
+  return `<div class="section"><div class="wrap" style="max-width:560px;">
+    <div class="kicker">Create your account</div>
+    <h2 style="margin-bottom:6px;">Let's set up LawPhaser for you</h2>
+    <p class="section-sub">This creates a real account${SUPABASE_READY? '':' (once Supabase is configured)'} plus your student profile — personalises your dashboard, table of contents and progress tracker, and lets you log back in later.</p>
+    ${configBannerHTML()}
+    <div class="card" style="padding:26px;margin-top:20px;">
+      ${state.authError? `<div class="demo-banner" style="background:#F7E6E7;border-color:#E3AEB2;color:#7A2A32;">${esc(state.authError)}</div>` : ""}
+      <div class="form-row"><label>Email</label><input id="ob-cred-email" type="email" placeholder="you@example.com"></div>
+      <div class="form-row"><label>Password</label><input id="ob-cred-pass" type="password" placeholder="At least 6 characters"></div>
+      <div class="form-row"><label>Full name</label><input id="ob-name" placeholder="e.g. Victoria Adeyemi"></div>
+      <div class="form-row"><label>University</label><input id="ob-uni" placeholder="e.g. University of Lagos"></div>
+      <div class="form-row"><label>Level</label>
+        <select id="ob-level">
+          <option>100 Level</option><option>200 Level</option><option>300 Level</option>
+          <option selected>400 Level</option><option>500 Level</option><option>Law School</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Faculty</label><input id="ob-faculty" placeholder="e.g. Faculty of Law" value="Faculty of Law"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitOnboard()" ${state.authBusy?'disabled':''}>${state.authBusy? 'Creating account…' : 'Create my account'}</button>
+      <p style="font-size:0.82rem;margin:14px 0 0;text-align:center;">Already registered? <span onclick="nav('#/signin')" style="color:var(--emerald-deep);font-weight:700;cursor:pointer;">Sign in</span></p>
+    </div>
+  </div></div>`;
+}
+async function submitOnboard(){
+  const email = document.getElementById("ob-cred-email").value.trim();
+  const pass = document.getElementById("ob-cred-pass").value;
+  const name = document.getElementById("ob-name").value.trim();
+  const uni = document.getElementById("ob-uni").value.trim() || "Your university";
+  const level = document.getElementById("ob-level").value;
+  const faculty = document.getElementById("ob-faculty").value.trim() || "Faculty of Law";
+  state.authError = "";
+  if(!name){ state.authError = "Please enter your name to continue."; render(); return; }
+
+  if(!SUPABASE_READY){
+    // Local/demo fallback — matches the app's original behaviour, no persistence.
+    state.profile = { name, uni, level, faculty, email };
+    nav("#/dashboard");
+    return;
+  }
+
+  if(!email || !pass || pass.length < 6){ state.authError = "Enter a valid email and a password of at least 6 characters."; render(); return; }
+  state.authBusy = true; render();
+  try{
+    const { data, error } = await sb.auth.signUp({ email, password: pass });
+    if(error) throw error;
+    // Row in profiles/progress/user_content is auto-created by the DB trigger (see setup.sql) —
+    // now fill in the fields from this form.
+    const userId = data.user ? data.user.id : (data.session ? data.session.user.id : null);
+    if(userId){
+      await sb.from('profiles').update({ name, university: uni, level, faculty, email }).eq('id', userId);
+    }
+    state.profile = { name, uni, level, faculty, email };
+    state.authBusy = false;
+    if(!data.session){
+      // Email confirmation is required by this Supabase project's settings.
+      state.authError = "";
+      alert("Account created. Please check your email to confirm your address, then sign in.");
+      nav("#/signin");
+      return;
+    }
+    await loadProgressFromDB(); await loadUserContentFromDB(); await loadAdminTopics();
+    nav("#/dashboard");
+  }catch(e){
+    state.authBusy = false;
+    state.authError = e.message || "Something went wrong creating your account.";
+    render();
+  }
+}
+
+/* ---------------- SIGN IN ---------------- */
+function viewSignIn(){
+  return `<div class="section"><div class="wrap" style="max-width:480px;">
+    <div class="kicker">Welcome back</div>
+    <h2>Sign in to LawPhaser</h2>
+    ${configBannerHTML()}
+    <div class="card" style="padding:26px;margin-top:20px;">
+      ${state.authError? `<div class="demo-banner" style="background:#F7E6E7;border-color:#E3AEB2;color:#7A2A32;">${esc(state.authError)}</div>` : ""}
+      <div class="form-row"><label>Email</label><input id="si-email" type="email" placeholder="you@example.com"></div>
+      <div class="form-row"><label>Password</label><input id="si-pass" type="password" placeholder="Your password"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitSignIn()" ${state.authBusy?'disabled':''}>${state.authBusy?'Signing in…':'Sign in'}</button>
+      <p style="font-size:0.82rem;margin:14px 0 0;text-align:center;">New here? <span onclick="nav('#/onboard')" style="color:var(--emerald-deep);font-weight:700;cursor:pointer;">Create an account</span></p>
+    </div>
+  </div></div>`;
+}
+async function submitSignIn(){
+  state.authError = "";
+  if(!SUPABASE_READY){ state.authError = "Sign-in needs Supabase configured — see the banner above."; render(); return; }
+  const email = document.getElementById("si-email").value.trim();
+  const pass = document.getElementById("si-pass").value;
+  if(!email || !pass){ state.authError = "Enter your email and password."; render(); return; }
+  state.authBusy = true; render();
+  try{
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if(error) throw error;
+    await loadProfileFromDB(); await loadProgressFromDB(); await loadUserContentFromDB(); await loadAdminTopics();
+    state.authBusy = false;
+    nav("#/dashboard");
+  }catch(e){
+    state.authBusy = false;
+    state.authError = e.message || "Could not sign in with those details.";
+    render();
+  }
+}
+
+/* ---------------- DASHBOARD ---------------- */
+function viewDashboard(){
+  const p = state.profile;
+  const cod = pickCaseOfDay();
+  const wod = pickWordOfDay();
+  const firstName = p.name.trim().split(" ")[0];
+  return `<div class="section tight"><div class="wrap">
+    <div class="kicker">Welcome back</div>
+    <h2>Welcome, ${esc(firstName)}.</h2>
+    <p class="section-sub">${esc(p.level)} Law Student · ${esc(p.uni)}</p>
+
+    <div class="reminder-strip" style="margin-top:24px;">
+      <div class="reminder-card" style="background:var(--ink);"><h4>Today's Legal Reminder</h4><p style="font-family:'Fraunces',serif;font-style:italic;">"${esc(dailyReminder())}"</p></div>
+      <div class="reminder-card" style="background:var(--emerald-deep);"><h4>Case of the Day</h4><p>${cod? esc(cod.name)+" — "+esc(cod.courseName) : "Add cases to see one here."}</p>
+        ${cod?`<button class="pill-btn" style="margin-top:12px;background:#fff;color:var(--emerald-deep);" onclick="nav('#/case/${cod.id}')">Read it</button>`:""}
+      </div>
+      <div class="reminder-card" style="background:var(--gold-deep);"><h4>Legal Word of the Day</h4><p style="font-family:'Fraunces',serif;font-size:1.15rem;">${esc(wod.w)}</p><p style="font-size:0.85rem;margin-top:6px;">${esc(wod.d)}</p></div>
+    </div>
+
+    <div class="section-head" style="margin-top:40px;"><div><h2 style="font-size:1.4rem;">Continue learning</h2></div></div>
+    <div class="folder-grid">
+      ${COURSES.map(c=>{
+        const done = c.topics.filter(t=>state.progress.topicsCompleted[c.id+'/'+t.id]).length;
+        const pct = Math.round(100*done/c.topics.length);
+        return `<div class="folder" style="--course-color:${c.color}" onclick="nav('#/course/${c.id}')">
+          <div style="font-size:1.6rem;">${c.icon}</div>
+          <h3>${c.name}</h3>
+          <div class="meta">${done}/${c.topics.length} topics completed</div>
+          <div class="progress-bar"><div style="width:${pct}%"></div></div>
+        </div>`;
+      }).join("")}
+    </div>
+
+    <div class="section-head" style="margin-top:40px;"><div><h2 style="font-size:1.4rem;">Jump to</h2></div></div>
+    <div class="feature-grid">
+      <div class="feature-card" onclick="nav('#/exam')" style="cursor:pointer;"><div class="ic">⏱️</div><h3>Exam Mode</h3><p>Timed mock exams from your quiz bank.</p></div>
+      <div class="feature-card" onclick="nav('#/maxims')" style="cursor:pointer;"><div class="ic">🏛️</div><h3>Latin Maxims</h3><p>Browse and favourite every maxim.</p></div>
+      <div class="feature-card" onclick="nav('#/careerquiz')" style="cursor:pointer;"><div class="ic">🧭</div><h3>Career Quiz</h3><p>Which area of law is right for you?</p></div>
+    </div>
+  </div></div>`;
+}
+
+/* ---------------- TOC ---------------- */
+function viewTOC(){
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">${esc(state.profile.level)}</div>
+    <h2>Table of Contents</h2>
+    <p class="section-sub">Your courses for ${esc(state.profile.level)}. Each one opens into topics, cases, evidence, flashcards, problem questions and quizzes.</p>
+    <div class="folder-grid" style="margin-top:24px;">
+      ${COURSES.map(c=>{
+        const done = c.topics.filter(t=>state.progress.topicsCompleted[c.id+'/'+t.id]).length;
+        const pct = Math.round(100*done/c.topics.length);
+        return `<div class="folder" style="--course-color:${c.color}" onclick="nav('#/course/${c.id}')">
+          <div style="font-size:1.6rem;">${c.icon}</div>
+          <h3>${c.name}</h3>
+          <p style="font-size:0.85rem;margin:8px 0;">${c.blurb}</p>
+          <div class="meta">${c.topics.length} topics · ${done} completed</div>
+          <div class="progress-bar"><div style="width:${pct}%"></div></div>
+        </div>`;
+      }).join("")}
+    </div>
+  </div></div>`;
+}
+
+/* ---------------- COURSE ---------------- */
+function viewCourse(courseId){
+  const c = COURSES.find(x=>x.id===courseId);
+  if(!c) return `<div class="section"><div class="wrap">Course not found.</div></div>`;
+  return `<div class="section"><div class="wrap">
+    <div class="kicker" style="color:${c.color}">${c.icon} ${c.name}</div>
+    <h2>${c.name}</h2>
+    <p class="section-sub">${c.blurb}</p>
+    <div class="folder-grid" style="margin-top:24px;">
+      ${c.topics.map(t=>{
+        const done = state.progress.topicsCompleted[c.id+'/'+t.id];
+        return `<div class="folder" style="--course-color:${c.color}" onclick="nav('#/topic/${c.id}/${t.id}/concept')">
+          <div class="tag-row">${done?'<span class="badge badge-emerald">Completed</span>':'<span class="badge badge-gold">Not started</span>'}</div>
+          <h3>${t.title}</h3>
+          <div class="meta">${t.cases.length} case${t.cases.length!==1?'s':''} · ${t.flashcards.length} flashcards · ${t.quiz.length} quiz Qs</div>
+        </div>`;
+      }).join("")}
+    </div>
+  </div></div>`;
+}
+
+/* ---------------- TOPIC ---------------- */
+function viewTopic(courseId, topicId, tab){
+  const found = findTopic(courseId, topicId);
+  if(!found) return `<div class="section"><div class="wrap">Topic not found.</div></div>`;
+  const {course:c, topic:t} = found;
+  const tabs = [["concept","Concept & Law"],["cases","Cases"],["evidence","Evidence"],["flashcards","Flashcards"],["problem","Problem Question"],["quiz","Quiz"],["next","What Next?"]];
+  let content = "";
+  if(tab==="concept") content = topicConceptTab(c,t);
+  else if(tab==="cases") content = topicCasesTab(c,t);
+  else if(tab==="evidence") content = topicEvidenceTab(c,t);
+  else if(tab==="flashcards") content = topicFlashcardsTab(c,t);
+  else if(tab==="problem") content = topicProblemTab(c,t);
+  else if(tab==="quiz") content = topicQuizTab(c,t);
+  else if(tab==="next") content = topicNextTab(c,t);
+
+  return `<div class="section"><div class="wrap">
+    <div class="kicker" style="color:${c.color}">${c.icon} ${c.name}</div>
+    <h2 style="font-size:1.7rem;">${t.title}</h2>
+    <div class="tabs">
+      ${tabs.map(([id,label])=>`<button class="${tab===id?'active':''}" onclick="nav('#/topic/${c.id}/${t.id}/${id}')">${label}</button>`).join("")}
+    </div>
+    ${content}
+  </div></div>`;
+}
+
+function topicConceptTab(c,t){
+  return `
+   ${t.video? `<div class="card block"><h4>🎧 Listen / Watch</h4><video controls style="width:100%;border-radius:10px;max-height:360px;background:#000;" src="${t.video.url}"></video><div style="font-size:0.82rem;color:var(--ink-soft);margin-top:8px;">${t.video.title}</div></div>` : ""}
+   <div class="card block"><h4>The Concept</h4><div class="body-text">${t.concept}</div></div>
+   <div class="card block"><h4>The Law</h4><ul>${t.law.map(l=>`<li>${l}</li>`).join("")}</ul></div>
+   <div class="card block"><h4>The Statute</h4><div class="body-text">${t.statute} <span class="evidence-btn" onclick="nav('#/topic/${c.id}/${t.id}/evidence')">🔍 Evidence</span></div></div>
+   <div style="margin-top:10px;"><button class="btn btn-emerald" onclick="nav('#/topic/${c.id}/${t.id}/cases')">See the ${t.cases.length} case${t.cases.length!==1?'s':''} →</button></div>
+  `;
+}
+function topicCasesTab(c,t){
+  if(t.cases.length===0) return `<div class="empty-state"><div class="ic">📁</div>No cases loaded for this topic yet — add some from the admin system.</div>`;
+  return t.cases.map(cs=>`
+    <div class="case-card" onclick="nav('#/case/${cs.id}')">
+      <div class="cname">${cs.name}</div>
+      <div class="cmeta">${cs.court}${cs.year&&cs.year!=='—'?', '+cs.year:''}</div>
+      <div style="margin-top:8px;font-size:0.88rem;color:var(--ink-soft);">${cs.principle}</div>
+    </div>`).join("");
+}
+function topicEvidenceTab(c,t){
+  return `<div class="card block">
+    <h4>Evidence for this topic's core principle</h4>
+    <div class="body-text" style="font-weight:700;">"${t.evidence.principle}"</div>
+    <div class="evidence-chain">
+      ${t.evidence.chain.map(step=>`<div class="ev-step"><div><div class="ev-label">Source</div><div class="ev-val">${step}</div></div></div>`).join("")}
+    </div>
+  </div>`;
+}
+function topicFlashcardsTab(c,t){
+  const deckKey = c.id+'/'+t.id;
+  if(state.flashDeckKey !== deckKey){ state.flashDeckKey = deckKey; state.flashIndex = 0; state.flashFlipped=false; }
+  const cards = t.flashcards;
+  if(cards.length===0) return `<div class="empty-state"><div class="ic">🧠</div>No flashcards yet for this topic.</div>`;
+  const i = state.flashIndex % cards.length;
+  const card = cards[i];
+  const knownKey = deckKey+'/'+i;
+  return `<div class="deck-wrap">
+    <div class="deck-progress">Card ${i+1} of ${cards.length}${state.flashKnown[knownKey]?' · marked known':''}</div>
+    <div class="flip-card ${state.flashFlipped?'flipped':''}" onclick="flipCard()">
+      <div class="flip-inner">
+        <div class="flip-face flip-front"><div class="fk">Front</div><div class="ftext">${card.f}</div></div>
+        <div class="flip-face flip-back"><div class="fk">Back</div><div class="ftext">${card.b}</div></div>
+      </div>
+    </div>
+    <div class="deck-controls">
+      <button style="background:var(--paper-line);" onclick="prevCard()">← Prev</button>
+      <button style="background:var(--berry);color:#fff;" onclick="markCard(false)">Review again</button>
+      <button style="background:var(--emerald);color:#fff;" onclick="markCard(true)">I know this</button>
+      <button style="background:var(--paper-line);" onclick="nextCard()">Next →</button>
+    </div>
+  </div>`;
+}
+function flipCard(){ state.flashFlipped = !state.flashFlipped; render(); }
+function nextCard(){ const t=currentTopicFromDeck(); state.flashIndex=(state.flashIndex+1)%t.flashcards.length; state.flashFlipped=false; render(); }
+function prevCard(){ const t=currentTopicFromDeck(); state.flashIndex=(state.flashIndex-1+t.flashcards.length)%t.flashcards.length; state.flashFlipped=false; render(); }
+function markCard(known){
+  const key = state.flashDeckKey+'/'+state.flashIndex;
+  state.flashKnown[key]=known;
+  if(known){ state.progress.flashMastered[key]=true; }
+  persistState();
+  nextCard();
+}
+function currentTopicFromDeck(){
+  const [cid,tid] = state.flashDeckKey.split('/');
+  return findTopic(cid,tid).topic;
+}
+
+function topicProblemTab(c,t){
+  const key = c.id+'/'+t.id;
+  const saved = state.irac[key] || {i:"",r:"",a:"",co:""};
+  return `<div class="card block">
+    <h4>Problem Question</h4>
+    <div class="body-text">${t.problem.scenario}</div>
+    <div class="ratio-box"><div class="rl">Task</div>${t.problem.ask}</div>
+  </div>
+  <div class="card block">
+    <h4>IRAC Answer Mode</h4>
+    <p style="font-size:0.85rem;">Structure your answer as Issue → Rule → Application → Conclusion, then compare against a strong-answer checklist.</p>
+    <div class="form-row"><label>I — Issue</label><textarea id="irac-i" placeholder="What legal question does this scenario raise?">${saved.i}</textarea></div>
+    <div class="form-row"><label>R — Rule</label><textarea id="irac-r" placeholder="What is the applicable law/rule?">${saved.r}</textarea></div>
+    <div class="form-row"><label>A — Application</label><textarea id="irac-a" placeholder="Apply the rule to these specific facts.">${saved.a}</textarea></div>
+    <div class="form-row"><label>C — Conclusion</label><textarea id="irac-c" placeholder="What's your conclusion/advice?">${saved.co}</textarea></div>
+    <button class="btn btn-emerald" onclick="submitIRAC('${c.id}','${t.id}')">Save & see what a strong answer covers</button>
+    <div id="iracFeedback"></div>
+  </div>`;
+}
+function submitIRAC(cid,tid){
+  const key=cid+'/'+tid;
+  state.irac[key] = {
+    i: document.getElementById('irac-i').value,
+    r: document.getElementById('irac-r').value,
+    a: document.getElementById('irac-a').value,
+    co: document.getElementById('irac-c').value
+  };
+  state.progress.problemsAttempted[key]=true;
+  persistState();
+  const t = findTopic(cid,tid).topic;
+  document.getElementById('iracFeedback').innerHTML = `
+    <div class="ratio-box" style="margin-top:16px;">
+      <div class="rl">A strong answer would cover</div>
+      <ul style="margin-top:8px;">
+        <li>Clearly frame the issue in one sentence before anything else.</li>
+        <li>State the rule using the actual statute/section and at least one authority: ${t.cases.length? t.cases.map(cs=>cs.name).join(", ") : "the relevant case law"}.</li>
+        <li>Apply the rule fact-by-fact — don't just restate the law, connect it to what happened in the scenario.</li>
+        <li>Reach a clear, confident conclusion/advice — don't leave it hanging.</li>
+      </ul>
+    </div>`;
+}
+
+function topicQuizTab(c,t){
+  const key = c.id+'/'+t.id;
+  if(!state.quizState || state.quizState.key!==key){
+    state.quizState = {key, i:0, score:0, answered:false, selected:null, finished:false};
+  }
+  const qs = t.quiz;
+  if(qs.length===0) return `<div class="empty-state"><div class="ic">📝</div>No quiz yet for this topic.</div>`;
+  const qsState = state.quizState;
+  if(qsState.finished){
+    state.progress.quizScores[key] = qsState.score+"/"+qs.length;
+    persistState();
+    return `<div class="card block" style="text-align:center;padding:40px;">
+      <h4>Quiz complete</h4>
+      <div style="font-family:'Fraunces',serif;font-size:2.4rem;color:var(--emerald-deep);">${qsState.score}/${qs.length}</div>
+      <p>Weak areas: ${qsState.score===qs.length? "None — solid grasp of this topic." : "Revisit the Concept & Law tab and the case list above."}</p>
+      <button class="btn btn-emerald" onclick="restartQuiz('${key}')">Try again</button>
+      <button class="btn btn-outline" style="color:var(--ink);border-color:var(--paper-line);" onclick="nav('#/topic/${c.id}/${t.id}/next')">What next →</button>
+    </div>`;
+  }
+  const q = qs[qsState.i];
+  return `<div class="card block">
+    <div class="tag-row"><span class="badge badge-sky">Question ${qsState.i+1} of ${qs.length}</span></div>
+    <h4 style="text-transform:none;letter-spacing:0;font-size:1.02rem;color:var(--ink);">${q.q}</h4>
+    <div style="margin-top:14px;">
+      ${q.options.map((opt,idx)=>{
+        let cls="q-option";
+        if(qsState.answered){
+          if(idx===q.a) cls+=" correct";
+          else if(idx===qsState.selected) cls+=" wrong";
+        }
+        return `<button class="${cls}" ${qsState.answered?'disabled':''} onclick="answerQuiz(${idx})">${opt}</button>`;
+      }).join("")}
+    </div>
+    ${qsState.answered? `<button class="btn btn-primary" style="margin-top:10px;" onclick="nextQuiz()">${qsState.i+1<qs.length? "Next question →":"See results →"}</button>` : ""}
+  </div>`;
+}
+function answerQuiz(idx){
+  const qs = state.quizState;
+  const key = qs.key;
+  const [cid,tid] = key.split('/');
+  const t = findTopic(cid,tid).topic;
+  const q = t.quiz[qs.i];
+  qs.answered = true; qs.selected = idx;
+  if(idx===q.a) qs.score++;
+  render();
+}
+function nextQuiz(){
+  const qs = state.quizState;
+  const [cid,tid] = qs.key.split('/');
+  const t = findTopic(cid,tid).topic;
+  if(qs.i+1 < t.quiz.length){ qs.i++; qs.answered=false; qs.selected=null; }
+  else { qs.finished = true; }
+  render();
+}
+function restartQuiz(key){ state.quizState = {key, i:0, score:0, answered:false, selected:null, finished:false}; render(); }
+
+function topicNextTab(c,t){
+  const key = c.id+'/'+t.id;
+  const done = !!state.progress.topicsCompleted[key];
+  const idxInCourse = c.topics.findIndex(x=>x.id===t.id);
+  const nextTopic = c.topics[idxInCourse+1];
+  return `<div class="next-block">
+    <h4>You've finished this topic. What should you do next?</h4>
+    <div class="checklist">
+      <label><input type="checkbox" onchange="nav('#/topic/${c.id}/${t.id}/cases')"> Review the cases</label>
+      <label><input type="checkbox" onchange="nav('#/topic/${c.id}/${t.id}/flashcards')"> Test yourself with flashcards</label>
+      <label><input type="checkbox" onchange="nav('#/topic/${c.id}/${t.id}/problem')"> Attempt the problem question</label>
+      <label><input type="checkbox" onchange="nav('#/topic/${c.id}/${t.id}/quiz')"> Take the quiz</label>
+      <label><input type="checkbox" onchange="nav('#/topic/${c.id}/${t.id}/concept')"> Review the relevant statute</label>
+      <label><input type="checkbox" onchange="nav('#/exam')"> Try Exam Mode</label>
+    </div>
+    <div class="next-recs">
+      <button class="pill-btn" onclick="markComplete('${c.id}','${t.id}')">${done? '✓ Marked complete':'Mark topic complete'}</button>
+      ${nextTopic? `<button class="pill-btn ghost" style="color:#fff;" onclick="nav('#/topic/${c.id}/${nextTopic.id}/concept')">Next topic: ${nextTopic.title} →</button>` : `<button class="pill-btn ghost" style="color:#fff;" onclick="nav('#/course/${c.id}')">Back to course →</button>`}
+    </div>
+  </div>`;
+}
+function markComplete(cid,tid){
+  const key=cid+'/'+tid;
+  state.progress.topicsCompleted[key]=true;
+  persistState();
+  render();
+}
+
+/* ---------------- CASE EXPLAINER (detail panel) ---------------- */
+function viewCaseOverlay(){
+  const m = state.route.match(/#\/case\/(.+)/);
+  if(!m) return "";
+  const found = findCase(m[1]);
+  if(!found) return "";
+  const {course:c, topic:t, cs} = found;
+  return `<div class="detail-panel" onclick="if(event.target===this) history.back()">
+    <div class="sheet">
+      <button class="sheet-close" onclick="history.back()">✕</button>
+      <div class="kicker" style="color:${c.color}">${c.name} · ${t.title}</div>
+      <h2 style="font-size:1.5rem;">${cs.name}</h2>
+      <div class="tag-row"><span class="badge badge-sky">${cs.court}</span>${cs.year&&cs.year!=='—'?`<span class="badge badge-gold">${cs.year}</span>`:''}</div>
+
+      <h4 class="block-h">Facts</h4><p>${cs.facts}</p>
+      <h4 class="block-h">Issue</h4><p>${cs.issue}</p>
+      <h4 class="block-h">Decision</h4><p>${cs.decision}</p>
+      <div class="ratio-box"><div class="rl">Ratio Decidendi</div>${cs.ratio}</div>
+      ${cs.obiter? `<div class="ratio-box" style="background:#EFEAF7;border-color:#CFC3E8;"><div class="rl" style="color:#5B4A8F;">Obiter Dicta</div>${cs.obiter}</div>` : ""}
+      <h4 class="block-h">Legal Principle</h4><p>${cs.principle}</p>
+      <h4 class="block-h">Why it's important / How to use it in an exam</h4><p>${cs.examUse}</p>
+      <button class="btn btn-emerald" onclick="nav('#/topic/${c.id}/${t.id}/cases')">Back to topic cases →</button>
+    </div>
+  </div>`;
+}
+
+/* ---------------- MAXIMS ---------------- */
+function viewMaxims(){
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">Latin, made simple</div>
+    <h2>Latin Maxims</h2>
+    <p class="section-sub">No grammar wahala — every maxim broken down into meaning, area of law, an example, and a memory trick.</p>
+    <div class="folder-grid" style="margin-top:20px;">
+      ${LATIN.map((m,idx)=>`
+        <div class="maxim-card">
+          <button class="fav" onclick="toggleFav(${idx})">${state.favMaxims[idx]?'★':'☆'}</button>
+          <div class="lat">${m.m}</div>
+          <div style="font-size:0.78rem;color:var(--ink-soft);margin:4px 0 10px;">${m.mean}</div>
+          <p style="font-size:0.9rem;margin-bottom:8px;">${m.plain}</p>
+          <div class="tag-row"><span class="badge badge-emerald">${m.area}</span></div>
+          <p style="font-size:0.84rem;"><strong>Example:</strong> ${m.ex}</p>
+          <p style="font-size:0.84rem;color:var(--gold-deep);"><strong>Memory trick:</strong> ${m.trick}</p>
+        </div>`).join("")}
+    </div>
+  </div></div>`;
+}
+function toggleFav(idx){ state.favMaxims[idx] = !state.favMaxims[idx]; persistState(); render(); }
+
+/* ---------------- CAREERS ---------------- */
+function viewCareers(){
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">What can you practise?</div>
+    <h2>Career Explorer</h2>
+    <p class="section-sub">A starting set of practice areas — the admin system is built so more can be added without rebuilding the app.</p>
+    <div class="career-tag-grid" style="margin-top:20px;">
+      ${CAREERS.map(c=>`<button class="career-tile" onclick="nav('#/career/${c.id}')"><div class="ic">${c.ic}</div><h4>${c.name}</h4></button>`).join("")}
+    </div>
+    <div style="margin-top:30px;"><button class="btn btn-primary" onclick="nav('#/careerquiz')">Take the career quiz →</button></div>
+  </div></div>`;
+}
+function viewCareerDetail(id){
+  const c = CAREERS.find(x=>x.id===id);
+  if(!c) return `<div class="section"><div class="wrap">Career area not found.</div></div>`;
+  state.progress.careersExplored[id]=true;
+  const rows = [["What is it?",c.what],["What do lawyers here mainly do?",c.do],["Who do they work for?",c.who],["Where can they work?",c.where],["What skills do you need?",c.skills],["Why choose this area?",c.why],["Pros",c.pros],["Cons",c.cons],["Subjects to focus on in law school",c.subjects],["Career path",c.path],["Who would enjoy this?",c.enjoy]];
+  return `<div class="section"><div class="wrap">
+    <button class="pill-btn ghost" style="color:var(--ink);border-color:var(--paper-line);" onclick="nav('#/careers')">← All careers</button>
+    <div class="kicker" style="margin-top:16px;">${c.ic} Career Explorer</div>
+    <h2>${c.name}</h2>
+    ${rows.map(([label,val])=>`<div class="card block"><h4>${label}</h4><div class="body-text">${val}</div></div>`).join("")}
+    <div class="card block" style="border-color:#DCC488;background:#FBF3DA;"><h4>Average earnings (estimate)</h4><div class="body-text">${c.earnings}</div></div>
+  </div></div>`;
+}
+
+const CAREER_QUIZ_QS = [
+ {q:"Do you enjoy arguing and thinking on your feet?", tags:{litigation:2,"human-rights":1}},
+ {q:"Do you enjoy deep research and precise drafting?", tags:{"ip-tech":2,corporate:1}},
+ {q:"Do you like business and financial structures?", tags:{corporate:2,"banking-finance":2}},
+ {q:"Do you want courtroom work?", tags:{litigation:2}},
+ {q:"Do you enjoy technology and how it's regulated?", tags:{"ip-tech":2}},
+ {q:"Do you enjoy helping people and social causes directly?", tags:{"human-rights":2}},
+ {q:"Do you enjoy complex financial or regulatory matters?", tags:{"banking-finance":2,"oil-gas":2}},
+ {q:"Do you like Nigeria's energy sector and its regulatory maze?", tags:{"oil-gas":2}}
+];
+function viewCareerQuiz(){
+  if(!state.careerQuizState) state.careerQuizState={i:0, scores:{}, answers:[]};
+  const s = state.careerQuizState;
+  if(s.i >= CAREER_QUIZ_QS.length){
+    const ranked = Object.entries(s.scores).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    return `<div class="section"><div class="wrap" style="max-width:560px;">
+      <h2>Your top matches</h2>
+      <div class="folder-grid" style="margin-top:16px;">
+        ${ranked.map(([id],i)=>{ const c=CAREERS.find(x=>x.id===id); return `<div class="folder" onclick="nav('#/career/${id}')"><div style="font-size:1.4rem;">${c.ic}</div><h3>#${i+1} ${c.name}</h3></div>`; }).join("")}
+      </div>
+      <button class="btn btn-outline" style="color:var(--ink);border-color:var(--paper-line);margin-top:20px;" onclick="state.careerQuizState=null;render();">Retake quiz</button>
+    </div></div>`;
+  }
+  const q = CAREER_QUIZ_QS[s.i];
+  return `<div class="section"><div class="wrap" style="max-width:560px;">
+    <div class="kicker">Career quiz · ${s.i+1} of ${CAREER_QUIZ_QS.length}</div>
+    <h2 style="font-size:1.4rem;">${q.q}</h2>
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <button class="btn btn-emerald" onclick="answerCareerQuiz(true)">Yes</button>
+      <button class="btn btn-outline" style="color:var(--ink);border-color:var(--paper-line);" onclick="answerCareerQuiz(false)">Not really</button>
+    </div>
+  </div></div>`;
+}
+function answerCareerQuiz(yes){
+  const s = state.careerQuizState;
+  const q = CAREER_QUIZ_QS[s.i];
+  if(yes){ Object.entries(q.tags).forEach(([id,w])=>{ s.scores[id]=(s.scores[id]||0)+w; }); }
+  s.i++;
+  render();
+}
+
+/* ---------------- FIRMS ---------------- */
+function viewFirms(){
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">Top firms</div>
+    <h2>Law Firm Directory</h2>
+    <div class="demo-banner">⚠️ Sample/demo data. Real firm research (name, official site, verified contact, practice areas, internship info) requires live web verification against official sources — this prototype ships with placeholder entries so the directory's layout, filters and cards are fully functional. Wire in verified research to replace them.</div>
+    ${LAW_FIRMS_DEMO.map(f=>`
+      <div class="opp-card">
+        <div class="top-row"><div class="cname" style="font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;">${f.name}</div><span class="badge badge-gold">Sample entry</span></div>
+        <div class="cmeta" style="margin:6px 0;">${f.location}</div>
+        <p style="font-size:0.88rem;margin-bottom:4px;"><strong>Practice areas:</strong> ${f.areas}</p>
+        <p style="font-size:0.88rem;margin-bottom:4px;"><strong>Email:</strong> ${f.website}</p>
+        <p style="font-size:0.82rem;color:var(--gold-deep);">${f.note}</p>
+      </div>`).join("")}
+  </div></div>`;
+}
+
+/* ---------------- INTERNSHIPS ---------------- */
+function statusBadge(s){
+  if(s==="open") return `<span class="status-open">🟢 OPEN</span>`;
+  if(s==="soon") return `<span class="status-soon">🟡 CLOSING SOON</span>`;
+  return `<span class="status-closed">🔴 CLOSED</span>`;
+}
+function viewInternships(){
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">Internship Hub</div>
+    <h2>Internships & LinkedIn Opportunities</h2>
+    <div class="demo-banner">⚠️ Sample/demo data. Live internship and LinkedIn listings require real-time web/LinkedIn search against current postings — this prototype ships with placeholder entries so the hub's cards, status badges and filters are fully functional. Wire in a live search to replace them with verified, dated opportunities.</div>
+    ${INTERNSHIPS_DEMO.map(o=>`
+      <div class="opp-card">
+        <div class="top-row"><div class="cname" style="font-family:'Fraunces',serif;font-weight:600;">${o.role}</div>${statusBadge(o.status)}</div>
+        <div class="cmeta">${o.org} · ${o.location} · ${o.mode}</div>
+        <p style="font-size:0.86rem;margin:8px 0 4px;"><strong>Eligibility:</strong> ${o.level} &nbsp; <strong>Area:</strong> ${o.area}</p>
+        <p style="font-size:0.86rem;"><strong>Duration:</strong> ${o.duration} &nbsp; <strong>Paid:</strong> ${o.paid} &nbsp; <strong>Deadline:</strong> ${o.deadline}</p>
+        <p style="font-size:0.8rem;color:var(--gold-deep);margin-top:6px;">${o.source}</p>
+      </div>`).join("")}
+  </div></div>`;
+}
+
+/* ---------------- NEWS ---------------- */
+function viewNews(){
+  const d = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">Nigerian Law Today</div>
+    <h2>Today in Nigerian Law — ${d}</h2>
+    <div class="demo-banner">⚠️ Sample/demo data. A real daily brief requires a live news search against current, dated sources — this prototype ships with placeholder items so the feed's layout is fully functional. Wire in a live search to populate real, sourced stories.</div>
+    ${NEWS_DEMO.map(n=>`
+      <div class="opp-card">
+        <div class="cname" style="font-family:'Fraunces',serif;font-weight:600;">${n.headline}</div>
+        <div class="cmeta">${n.date} · ${n.area}</div>
+        <p style="font-size:0.88rem;margin:8px 0;">${n.what}</p>
+        <p style="font-size:0.84rem;"><strong>Why it matters:</strong> ${n.why}</p>
+        <p style="font-size:0.8rem;color:var(--gold-deep);margin-top:6px;">${n.source}</p>
+      </div>`).join("")}
+  </div></div>`;
+}
+
+/* ---------------- SEARCH ---------------- */
+function doSearch(q){ state.searchQuery = q; nav("#/search"); }
+function viewSearch(){
+  const q = (state.searchQuery||"").trim().toLowerCase();
+  if(!q) return `<div class="section"><div class="wrap"><div class="empty-state"><div class="ic">🔎</div>Type something into the search bar above to search courses, cases, statutes, maxims, careers, internships, law firms and news.</div></div></div>`;
+  const results = {topics:[], cases:[], maxims:[], careers:[], firms:[], internships:[], news:[]};
+  COURSES.forEach(c=>c.topics.forEach(t=>{
+    if((t.title+t.concept).toLowerCase().includes(q)) results.topics.push({c,t});
+    t.cases.forEach(cs=>{ if((cs.name+cs.principle).toLowerCase().includes(q)) results.cases.push({c,t,cs}); });
+  }));
+  LATIN.forEach(m=>{ if((m.m+m.plain+m.area).toLowerCase().includes(q)) results.maxims.push(m); });
+  CAREERS.forEach(c=>{ if((c.name+c.what).toLowerCase().includes(q)) results.careers.push(c); });
+  LAW_FIRMS_DEMO.forEach(f=>{ if((f.name+f.areas).toLowerCase().includes(q)) results.firms.push(f); });
+  INTERNSHIPS_DEMO.forEach(o=>{ if((o.role+o.org+o.area).toLowerCase().includes(q)) results.internships.push(o); });
+  NEWS_DEMO.forEach(n=>{ if((n.headline+n.area).toLowerCase().includes(q)) results.news.push(n); });
+
+  const groups = [
+   ["Courses & Topics", results.topics.map(r=>({title:r.t.title, sub:r.c.name, go:()=>`#/topic/${r.c.id}/${r.t.id}/concept`}))],
+   ["Cases", results.cases.map(r=>({title:r.cs.name, sub:r.c.name+" · "+r.t.title, go:()=>`#/case/${r.cs.id}`}))],
+   ["Latin Maxims", results.maxims.map(m=>({title:m.m, sub:m.area, go:()=>`#/maxims`}))],
+   ["Careers", results.careers.map(c=>({title:c.name, sub:"Career area", go:()=>`#/career/${c.id}`}))],
+   ["Law Firms", results.firms.map(f=>({title:f.name, sub:f.areas, go:()=>`#/firms`}))],
+   ["Internships", results.internships.map(o=>({title:o.role, sub:o.org, go:()=>`#/internships`}))],
+   ["Nigerian Law Today", results.news.map(n=>({title:n.headline, sub:n.area, go:()=>`#/news`}))]
+  ].filter(([_,arr])=>arr.length>0);
+
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">Search results</div>
+    <h2>"${q}"</h2>
+    ${groups.length===0? `<div class="empty-state"><div class="ic">🕳️</div>Nothing matched. Try a different term, e.g. "estoppel", "internship" or "oil and gas".</div>` :
+      groups.map(([label,items])=>`<div class="search-results-group"><h3>${label}</h3>
+        ${items.map(it=>`<div class="result-row" onclick="nav('${it.go()}')"><div class="rtitle">${it.title}</div><div class="rsub">${it.sub}</div></div>`).join("")}
+      </div>`).join("")}
+  </div></div>`;
+}
+
+/* ---------------- PROFILE ---------------- */
+function viewProfile(){
+  const p = state.profile;
+  const total = totalTopics();
+  const done = completedCount();
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">Profile</div>
+    <h2>${esc(p.name)}</h2>
+    <p class="section-sub">${esc(p.level)} · ${esc(p.faculty)} · ${esc(p.uni)}${p.email? ' · '+esc(p.email):''}</p>
+    ${SUPABASE_READY? `<button class="pill-btn ghost" style="color:var(--ink);border-color:var(--paper-line);margin-top:10px;" onclick="signOutUser()">Sign out</button>` : `<div class="demo-banner" style="margin-top:14px;">Signed in locally only — Supabase isn't configured, so this session isn't backed by a real account yet.</div>`}
+
+    <div class="section-head" style="margin-top:30px;"><h2 style="font-size:1.3rem;">Progress</h2></div>
+    <div class="progress-grid">
+      <div class="pstat"><div class="n">${state.progress.streak}</div><div class="l">Day streak</div></div>
+      <div class="pstat"><div class="n">${done}/${total}</div><div class="l">Topics completed</div></div>
+      <div class="pstat"><div class="n">${Object.keys(state.progress.flashMastered).length}</div><div class="l">Flashcards mastered</div></div>
+      <div class="pstat"><div class="n">${Object.keys(state.progress.problemsAttempted).length}</div><div class="l">Problem Qs attempted</div></div>
+      <div class="pstat"><div class="n">${Object.keys(state.progress.quizScores).length}</div><div class="l">Quizzes taken</div></div>
+      <div class="pstat"><div class="n">${state.progress.examScores.length}</div><div class="l">Exams taken</div></div>
+      <div class="pstat"><div class="n">${Object.keys(state.progress.careersExplored).length}</div><div class="l">Career areas explored</div></div>
+      <div class="pstat"><div class="n">${Object.values(state.favMaxims).filter(Boolean).length}</div><div class="l">Maxims favourited</div></div>
+    </div>
+
+    <div class="section-head" style="margin-top:34px;"><h2 style="font-size:1.3rem;">My Study Tools</h2></div>
+    <div class="feature-grid">
+      <div class="feature-card" style="cursor:pointer;" onclick="nav('#/notes')"><div class="ic">📌</div><h3>Sticky Notes</h3><p>${state.notes.length} note${state.notes.length!==1?'s':''} saved.</p></div>
+      <div class="feature-card" style="cursor:pointer;" onclick="nav('#/maxims')"><div class="ic">🔖</div><h3>Favourited Maxims</h3><p>${Object.values(state.favMaxims).filter(Boolean).length} favourites.</p></div>
+      <div class="feature-card" style="cursor:pointer;" onclick="nav('#/exam')"><div class="ic">📝</div><h3>Exam Mode</h3><p>Run a timed mock exam.</p></div>
+      ${p.is_admin? `<div class="feature-card" style="cursor:pointer;" onclick="nav('#/admin')"><div class="ic">⚙️</div><h3>Admin Panel</h3><p>Add new topics, cases and videos.</p></div>` : ""}
+    </div>
+  </div></div>`;
+}
+
+/* ---------------- NOTES ---------------- */
+const STICKY_COLORS = ["#F3E4B8","#D8ECE2","#F3D9DB","#DCE7F2","#EFEAF7"];
+function viewNotes(){
+  return `<div class="section"><div class="wrap">
+    <div class="kicker">Study tools</div>
+    <h2>Sticky Notes</h2>
+    <div class="form-row" style="max-width:420px;"><textarea id="newNote" placeholder="Write a quick note…"></textarea></div>
+    <button class="btn btn-primary" onclick="addNote()">Add note</button>
+    <div class="sticky-grid" style="margin-top:24px;">
+      ${state.notes.length===0? `<div class="empty-state"><div class="ic">📝</div>No notes yet.</div>` :
+      state.notes.map((n,idx)=>`<div class="sticky" style="background:${STICKY_COLORS[idx%STICKY_COLORS.length]}"><button onclick="deleteNote(${idx})">✕</button>${n}</div>`).join("")}
+    </div>
+  </div></div>`;
+}
+function addNote(){
+  const v = document.getElementById('newNote').value.trim();
+  if(!v) return;
+  state.notes.push(v);
+  persistState();
+  render();
+}
+function deleteNote(idx){ state.notes.splice(idx,1); persistState(); render(); }
+
+/* ---------------- ADMIN PANEL ---------------- */
+function blankAdminForm(){
+  return {
+    courseId: COURSES[0].id, title:"", concept:"", lawText:"", statute:"",
+    problemScenario:"", problemAsk:"",
+    cases:[{name:"",court:"",facts:"",issue:"",decision:"",ratio:""}],
+    flashcards:[{f:"",b:""}],
+    quiz:[{q:"",o1:"",o2:"",o3:"",o4:"",correct:0}],
+    videoTitle:"",
+    uploading:false, message:"", messageOk:false
+  };
+}
+if(!state.adminForm) state.adminForm = blankAdminForm();
+
+function captureAdminForm(){
+  const af = state.adminForm;
+  const g = id => { const el=document.getElementById(id); return el? el.value : undefined; };
+  if(g('adm-course')!==undefined) af.courseId = g('adm-course');
+  if(g('adm-title')!==undefined) af.title = g('adm-title');
+  if(g('adm-concept')!==undefined) af.concept = g('adm-concept');
+  if(g('adm-law')!==undefined) af.lawText = g('adm-law');
+  if(g('adm-statute')!==undefined) af.statute = g('adm-statute');
+  if(g('adm-problem-scenario')!==undefined) af.problemScenario = g('adm-problem-scenario');
+  if(g('adm-problem-ask')!==undefined) af.problemAsk = g('adm-problem-ask');
+  if(g('adm-video-title')!==undefined) af.videoTitle = g('adm-video-title');
+  af.cases.forEach((row,i)=>{
+    ['name','court','facts','issue','decision','ratio'].forEach(k=>{
+      const v = g('adm-case-'+k+'-'+i); if(v!==undefined) row[k]=v;
+    });
+  });
+  af.flashcards.forEach((row,i)=>{
+    const f=g('adm-fc-f-'+i), b=g('adm-fc-b-'+i);
+    if(f!==undefined) row.f=f; if(b!==undefined) row.b=b;
+  });
+  af.quiz.forEach((row,i)=>{
+    ['q','o1','o2','o3','o4'].forEach(k=>{ const v=g('adm-q-'+k+'-'+i); if(v!==undefined) row[k]=v; });
+    const c = document.querySelector('input[name="adm-correct-'+i+'"]:checked');
+    if(c) row.correct = parseInt(c.value,10);
+  });
+}
+function addCaseRow(){ captureAdminForm(); state.adminForm.cases.push({name:"",court:"",facts:"",issue:"",decision:"",ratio:""}); render(); }
+function removeCaseRow(i){ captureAdminForm(); state.adminForm.cases.splice(i,1); if(state.adminForm.cases.length===0) state.adminForm.cases.push({name:"",court:"",facts:"",issue:"",decision:"",ratio:""}); render(); }
+function addFlashRow(){ captureAdminForm(); state.adminForm.flashcards.push({f:"",b:""}); render(); }
+function removeFlashRow(i){ captureAdminForm(); state.adminForm.flashcards.splice(i,1); if(state.adminForm.flashcards.length===0) state.adminForm.flashcards.push({f:"",b:""}); render(); }
+function addQuizRow(){ captureAdminForm(); state.adminForm.quiz.push({q:"",o1:"",o2:"",o3:"",o4:"",correct:0}); render(); }
+function removeQuizRow(i){ captureAdminForm(); state.adminForm.quiz.splice(i,1); if(state.adminForm.quiz.length===0) state.adminForm.quiz.push({q:"",o1:"",o2:"",o3:"",o4:"",correct:0}); render(); }
+
+function viewAdmin(){
+  if(!state.profile || !state.profile.is_admin){
+    return `<div class="section"><div class="wrap"><div class="empty-state"><div class="ic">🔒</div>
+      This area is for LawPhaser admins only. If this should be you, an existing admin needs to run
+      <code>update profiles set is_admin = true where email = '${esc(state.profile? state.profile.email:'you@example.com')}';</code>
+      in the Supabase SQL Editor.</div></div></div>`;
+  }
+  if(!state.adminTab) state.adminTab = 'content';
+  const tabsHTML = `<div class="tabs">
+    <button class="${state.adminTab==='content'?'active':''}" onclick="switchAdminTab('content')">Add Content</button>
+    <button class="${state.adminTab==='users'?'active':''}" onclick="switchAdminTab('users')">Registered Users</button>
+  </div>`;
+
+  if(state.adminTab==='users'){
+    return `<div class="section"><div class="wrap" style="max-width:760px;">
+      <div class="kicker">Admin panel</div>
+      <h2>Registered Users</h2>
+      <p class="section-sub">Everyone who has signed up for LawPhaser.</p>
+      ${tabsHTML}
+      ${viewAdminUsers()}
+    </div></div>`;
+  }
+
+  const af = state.adminForm;
+  return `<div class="section"><div class="wrap" style="max-width:760px;">
+    <div class="kicker">Admin panel</div>
+    <h2>Add new material</h2>
+    <p class="section-sub">Adds a real topic to the course library — everyone signed in to LawPhaser will see it immediately, including any video you upload.</p>
+    ${tabsHTML}
+
+    ${af.message? `<div class="demo-banner" style="${af.messageOk?'background:#D8ECE2;border-color:#8FCBAA;color:#164F3B;':'background:#F7E6E7;border-color:#E3AEB2;color:#7A2A32;'}">${esc(af.message)}</div>` : ""}
+
+    <div class="card block">
+      <h4>Basics</h4>
+      <div class="form-row"><label>Course</label>
+        <select id="adm-course" onchange="captureAdminForm()">
+          ${COURSES.map(c=>`<option value="${c.id}" ${af.courseId===c.id?'selected':''}>${c.name}</option>`).join("")}
+        </select>
+      </div>
+      <div class="form-row"><label>Topic title</label><input id="adm-title" value="${esc(af.title)}" placeholder="e.g. Undue Influence"></div>
+      <div class="form-row"><label>The Concept</label><textarea id="adm-concept" placeholder="Plain-English explanation of the topic.">${esc(af.concept)}</textarea></div>
+      <div class="form-row"><label>The Law (one point per line)</label><textarea id="adm-law" placeholder="Each line becomes one bullet point">${esc(af.lawText)}</textarea></div>
+      <div class="form-row"><label>The Statute</label><input id="adm-statute" value="${esc(af.statute)}" placeholder="e.g. Section 12, Contract Law"></div>
+    </div>
+
+    <div class="card block">
+      <h4>🎧 Video (optional)</h4>
+      <div class="form-row"><label>Video file</label><input type="file" id="adm-video-file" accept="video/*"></div>
+      <div class="form-row"><label>Video title/caption</label><input id="adm-video-title" value="${esc(af.videoTitle)}" placeholder="e.g. Lecture: Undue Influence explained"></div>
+      <p style="font-size:0.78rem;color:var(--ink-soft);">Uploads to your Supabase "videos" storage bucket. Free-tier limit is 50MB per file.</p>
+    </div>
+
+    <div class="card block">
+      <h4>Cases</h4>
+      ${af.cases.map((cs,i)=>`
+        <div style="border:1px solid var(--paper-line);border-radius:10px;padding:14px;margin-bottom:12px;">
+          <div class="form-row"><label>Case name</label><input id="adm-case-name-${i}" value="${esc(cs.name)}" placeholder="e.g. Smith v Jones"></div>
+          <div class="form-row"><label>Court</label><input id="adm-case-court-${i}" value="${esc(cs.court)}"></div>
+          <div class="form-row"><label>Facts</label><textarea id="adm-case-facts-${i}">${esc(cs.facts)}</textarea></div>
+          <div class="form-row"><label>Issue</label><textarea id="adm-case-issue-${i}">${esc(cs.issue)}</textarea></div>
+          <div class="form-row"><label>Decision</label><textarea id="adm-case-decision-${i}">${esc(cs.decision)}</textarea></div>
+          <div class="form-row"><label>Ratio Decidendi</label><textarea id="adm-case-ratio-${i}">${esc(cs.ratio)}</textarea></div>
+          <button class="pill-btn ghost" style="color:var(--berry);border-color:var(--berry);" onclick="removeCaseRow(${i})">Remove this case</button>
+        </div>`).join("")}
+      <button class="pill-btn" style="background:var(--paper-line);color:var(--ink);" onclick="addCaseRow()">+ Add another case</button>
+    </div>
+
+    <div class="card block">
+      <h4>Flashcards</h4>
+      ${af.flashcards.map((fc,i)=>`
+        <div style="border:1px solid var(--paper-line);border-radius:10px;padding:14px;margin-bottom:12px;">
+          <div class="form-row"><label>Front</label><input id="adm-fc-f-${i}" value="${esc(fc.f)}"></div>
+          <div class="form-row"><label>Back</label><input id="adm-fc-b-${i}" value="${esc(fc.b)}"></div>
+          <button class="pill-btn ghost" style="color:var(--berry);border-color:var(--berry);" onclick="removeFlashRow(${i})">Remove</button>
+        </div>`).join("")}
+      <button class="pill-btn" style="background:var(--paper-line);color:var(--ink);" onclick="addFlashRow()">+ Add another flashcard</button>
+    </div>
+
+    <div class="card block">
+      <h4>Quiz questions</h4>
+      ${af.quiz.map((q,i)=>`
+        <div style="border:1px solid var(--paper-line);border-radius:10px;padding:14px;margin-bottom:12px;">
+          <div class="form-row"><label>Question</label><input id="adm-q-q-${i}" value="${esc(q.q)}"></div>
+          ${['o1','o2','o3','o4'].map((k,oi)=>`
+            <div class="form-row" style="display:flex;align-items:center;gap:8px;">
+              <input type="radio" name="adm-correct-${i}" value="${oi}" ${q.correct===oi?'checked':''} style="width:16px;height:16px;flex-shrink:0;">
+              <input id="adm-q-${k}-${i}" value="${esc(q[k])}" placeholder="Option ${oi+1}" style="flex:1;">
+            </div>`).join("")}
+          <p style="font-size:0.76rem;color:var(--ink-soft);">Select the radio button next to the correct option.</p>
+          <button class="pill-btn ghost" style="color:var(--berry);border-color:var(--berry);" onclick="removeQuizRow(${i})">Remove</button>
+        </div>`).join("")}
+      <button class="pill-btn" style="background:var(--paper-line);color:var(--ink);" onclick="addQuizRow()">+ Add another question</button>
+    </div>
+
+    <div class="card block">
+      <h4>Problem question (optional)</h4>
+      <div class="form-row"><label>Scenario</label><textarea id="adm-problem-scenario">${esc(af.problemScenario)}</textarea></div>
+      <div class="form-row"><label>Task ("Advise the parties...")</label><textarea id="adm-problem-ask">${esc(af.problemAsk)}</textarea></div>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="submitAdminTopic()" ${af.uploading?'disabled':''}>${af.uploading? 'Saving…' : 'Publish topic'}</button>
+
+    <div class="section-head" style="margin-top:40px;"><h2 style="font-size:1.2rem;">Already published by admins</h2></div>
+    ${adminTopicListHTML()}
+  </div></div>`;
+}
+function adminTopicListHTML(){
+  const rows=[];
+  COURSES.forEach(c=>c.topics.forEach(t=>{ if(t.__admin) rows.push({c,t}); }));
+  if(rows.length===0) return `<div class="empty-state"><div class="ic">📭</div>Nothing published yet.</div>`;
+  return rows.map(({c,t})=>`
+    <div class="opp-card">
+      <div class="top-row"><div class="cname" style="font-family:'Fraunces',serif;font-weight:600;">${t.title}</div><span class="badge badge-emerald">${c.name}</span></div>
+      ${t.video? `<div class="cmeta">🎧 ${t.video.title}</div>`:''}
+      <button class="pill-btn ghost" style="color:var(--berry);border-color:var(--berry);margin-top:8px;" onclick="deleteAdminTopic('${t.id}')">Delete</button>
+    </div>`).join("");
+}
+async function submitAdminTopic(){
+  captureAdminForm();
+  const af = state.adminForm;
+  if(!af.title.trim()){ af.message="Please give the topic a title."; af.messageOk=false; render(); return; }
+  if(!sb){ af.message="Supabase isn't configured — can't publish."; af.messageOk=false; render(); return; }
+  af.uploading = true; af.message=""; render();
+  try{
+    let videoUrl = null;
+    const fileInput = document.getElementById('adm-video-file');
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      const path = Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9.\-_]/g,'_');
+      const { error: upErr } = await sb.storage.from('videos').upload(path, file);
+      if(upErr) throw upErr;
+      const { data: pub } = sb.storage.from('videos').getPublicUrl(path);
+      videoUrl = pub.publicUrl;
+    }
+    const { data:{ user } } = await sb.auth.getUser();
+    const payload = {
+      course_id: af.courseId,
+      title: af.title.trim(),
+      concept: af.concept.trim(),
+      law: af.lawText.split("\n").map(s=>s.trim()).filter(Boolean),
+      statute: af.statute.trim(),
+      cases: af.cases.filter(c=>c.name.trim()).map(c=>({name:c.name,court:c.court,year:"—",facts:c.facts,issue:c.issue,decision:c.decision,ratio:c.ratio,obiter:"",principle:c.ratio,examUse:c.ratio})),
+      flashcards: af.flashcards.filter(f=>f.f.trim()&&f.b.trim()),
+      quiz: af.quiz.filter(q=>q.q.trim()).map(q=>({q:q.q, options:[q.o1,q.o2,q.o3,q.o4], a:q.correct})),
+      problem_scenario: af.problemScenario.trim() || null,
+      problem_ask: af.problemAsk.trim() || null,
+      video_url: videoUrl,
+      video_title: af.videoTitle.trim() || null,
+      created_by: user? user.id : null
+    };
+    const { error } = await sb.from('admin_topics').insert(payload);
+    if(error) throw error;
+    await loadAdminTopics();
+    state.adminForm = blankAdminForm();
+    state.adminForm.message = "Published. Students will see it next time they load the app.";
+    state.adminForm.messageOk = true;
+  }catch(e){
+    af.uploading = false;
+    af.message = e.message || "Something went wrong publishing this topic.";
+    af.messageOk = false;
+  }
+  render();
+}
+async function deleteAdminTopic(id){
+  if(!confirm("Delete this topic for everyone?")) return;
+  if(!sb) return;
+  await sb.from('admin_topics').delete().eq('id', id);
+  await loadAdminTopics();
+  render();
+}
+
+function switchAdminTab(tab){
+  state.adminTab = tab;
+  if(tab==='users') state.adminUsersLoaded = false;
+  render();
+}
+
+async function loadAdminUsers(){
+  if(!sb) return;
+  state.adminUsersLoading = true;
+  render();
+  const { data, error } = await sb.from('profiles').select('*').order('created_at',{ascending:false});
+  state.adminUsers = error ? [] : (data||[]);
+  state.adminUsersError = error ? (error.message || "Could not load users — check that the admin read policy on 'profiles' ran successfully.") : null;
+  state.adminUsersLoading = false;
+  state.adminUsersLoaded = true;
+  render();
+}
+
+function viewAdminUsers(){
+  if(state.adminUsersLoading){
+    return `<div class="empty-state"><div class="ic">⏳</div>Loading registered users…</div>`;
+  }
+  if(state.adminUsersError){
+    return `<div class="empty-state"><div class="ic">⚠️</div>${esc(state.adminUsersError)}
+      <br><button class="pill-btn" style="margin-top:12px;" onclick="loadAdminUsers()">Try again</button></div>`;
+  }
+  const users = state.adminUsers || [];
+  if(users.length===0){
+    return `<div class="empty-state"><div class="ic">📭</div>No one has registered yet.
+      <br><button class="pill-btn" style="margin-top:12px;" onclick="loadAdminUsers()">Refresh</button></div>`;
+  }
+  return `
+    <div class="pstat" style="display:inline-block;padding:14px 22px;margin-bottom:18px;">
+      <div class="n">${users.length}</div><div class="l">Total registered</div>
+    </div>
+    <div class="card" style="overflow-x:auto;padding:0;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+        <thead><tr style="text-align:left;border-bottom:2px solid var(--paper-line);">
+          <th style="padding:12px 16px;">Name</th>
+          <th style="padding:12px 16px;">Email</th>
+          <th style="padding:12px 16px;">University</th>
+          <th style="padding:12px 16px;">Level</th>
+          <th style="padding:12px 16px;">Joined</th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u=>`<tr style="border-bottom:1px solid var(--paper-line);">
+            <td style="padding:12px 16px;">${esc(u.name||'—')}</td>
+            <td style="padding:12px 16px;">${esc(u.email||'—')}</td>
+            <td style="padding:12px 16px;">${esc(u.university||'—')}</td>
+            <td style="padding:12px 16px;">${esc(u.level||'—')}</td>
+            <td style="padding:12px 16px;">${u.created_at? new Date(u.created_at).toLocaleDateString():'—'}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+    <button class="pill-btn ghost" style="margin-top:14px;" onclick="loadAdminUsers()">Refresh list</button>
+  `;
+}
+
+/* ---------------- EXAM MODE ---------------- */
+function viewExam(){
+  if(!state.examState) state.examState = {setup:true};
+  const es = state.examState;
+  if(es.setup){
+    return `<div class="section"><div class="wrap" style="max-width:520px;">
+      <div class="kicker">Study tools</div>
+      <h2>Exam Mode</h2>
+      <div class="card" style="padding:24px;margin-top:16px;">
+        <div class="form-row"><label>Course</label>
+          <select id="ex-course">${COURSES.map(c=>`<option value="${c.id}">${c.name}</option>`).join("")}</select>
+        </div>
+        <div class="form-row"><label>Number of questions</label>
+          <select id="ex-count"><option value="5">5</option><option value="10">10</option><option value="15">15</option></select>
+        </div>
+        <div class="form-row"><label>Difficulty</label>
+          <select id="ex-diff"><option>Mixed</option><option>Beginner</option><option>Exam Level</option></select>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="startExam()">Start exam</button>
+      </div>
+    </div></div>`;
+  }
+  if(es.finished){
+    return `<div class="section"><div class="wrap" style="max-width:520px;text-align:center;">
+      <h2>Exam complete</h2>
+      <div style="font-family:'Fraunces',serif;font-size:3rem;color:var(--emerald-deep);">${es.score}/${es.questions.length}</div>
+      <p>Suggested revision: revisit the topics behind any question you missed, then retake the topic quiz.</p>
+      <button class="btn btn-emerald" onclick="state.examState={setup:true};render();">Set up another exam</button>
+    </div></div>`;
+  }
+  const q = es.questions[es.i];
+  const remain = es.timeLeft;
+  return `<div class="section"><div class="wrap" style="max-width:640px;">
+    <div class="tag-row" style="justify-content:space-between;display:flex;"><span class="badge badge-sky">Question ${es.i+1} of ${es.questions.length}</span><span class="timer-badge">⏱ ${Math.floor(remain/60)}:${(remain%60).toString().padStart(2,'0')}</span></div>
+    <div class="card block"><h4 style="text-transform:none;letter-spacing:0;font-size:1.02rem;color:var(--ink);">${q.q}</h4>
+      <div style="margin-top:14px;">
+        ${q.options.map((opt,idx)=>{
+          let cls="q-option";
+          if(es.answered){ if(idx===q.a) cls+=" correct"; else if(idx===es.selected) cls+=" wrong"; }
+          return `<button class="${cls}" ${es.answered?'disabled':''} onclick="examAnswer(${idx})">${opt}</button>`;
+        }).join("")}
+      </div>
+      ${es.answered? `<button class="btn btn-primary" style="margin-top:10px;" onclick="examNext()">${es.i+1<es.questions.length?'Next →':'Finish →'}</button>`:''}
+    </div>
+  </div></div>`;
+}
+let examTimerHandle=null;
+function startExam(){
+  const cid = document.getElementById('ex-course').value;
+  const count = parseInt(document.getElementById('ex-count').value,10);
+  const c = COURSES.find(x=>x.id===cid);
+  let pool=[];
+  c.topics.forEach(t=>t.quiz.forEach(q=>pool.push(q)));
+  pool = pool.sort(()=>Math.random()-0.5).slice(0,Math.min(count,pool.length));
+  state.examState = {setup:false, finished:false, questions:pool, i:0, score:0, answered:false, selected:null, timeLeft: pool.length*45};
+  clearInterval(examTimerHandle);
+  examTimerHandle = setInterval(()=>{
+    if(!state.examState || state.examState.finished){ clearInterval(examTimerHandle); return; }
+    state.examState.timeLeft--;
+    if(state.examState.timeLeft<=0){ state.examState.finished=true; clearInterval(examTimerHandle); }
+    render();
+  },1000);
+  render();
+}
+function examAnswer(idx){
+  const es = state.examState;
+  es.answered=true; es.selected=idx;
+  if(idx===es.questions[es.i].a) es.score++;
+  render();
+}
+function examNext(){
+  const es = state.examState;
+  if(es.i+1<es.questions.length){ es.i++; es.answered=false; es.selected=null; }
+  else { es.finished=true; clearInterval(examTimerHandle); state.progress.examScores.push(es.score+"/"+es.questions.length); persistState(); }
+  render();
+}
+
+/* ---------------- WIRING ---------------- */
+function wireGlobalEvents(){
+  // render case overlay on top if route is a case route
+  const existing = document.getElementById("caseOverlay");
+  if(existing) existing.remove();
+  if(state.route.startsWith("#/case/")){
+    const div = document.createElement("div");
+    div.id = "caseOverlay";
+    div.innerHTML = viewCaseOverlay();
+    document.body.appendChild(div);
+  }
+}
+
+/* ---------------- INIT ---------------- */
+async function bootstrap(){
+  if(sb){
+    try{
+      const { data:{ session } } = await sb.auth.getSession();
+      if(session){
+        await loadProfileFromDB();
+        await loadProgressFromDB();
+        await loadUserContentFromDB();
+      }
+      await loadAdminTopics();
+    }catch(e){ console.error("LawPhaser session check failed:", e); }
+  }
+  state.route = location.hash || "#/";
+  render();
+}
+bootstrap();
+</script>
+</body>
+</html>
