@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LawPhaser — Law school, but easier.</title>
-  <meta name="description" content="LawPhaser is a legal education platform for Nigerian law students, founded by Victoria Ordia.">
+<title>LawPhaser — Law school, but easier.</title> <meta name="description" content="LawPhaser is a legal education platform for Nigerian law students, founded by Victoria Ordia.">
 <meta name="author" content="Victoria Ordia">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2497,7 +2496,15 @@ async function bootstrap(){
   }
   state.route = location.hash || "#/";
   render();
-}
+}async function loadProfileFromDB(){
+  if(!sb) return;
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user) return;
+  const { data, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if(!error && data){
+    state.profile = { name:data.name||"", uni:data.university||"", level:data.level||"400 Level", faculty:data.faculty||"", email:data.email||"", is_admin: !!data.is_admin };
+  }
+                     }
 bootstrap();
 </script>
 </body>
